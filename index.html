@@ -271,7 +271,10 @@ kbd{ font-family:var(--sans); font-size:.78rem; border:1px solid var(--line-stro
 /* Dialogs */
 dialog{ border:0; border-radius:22px; padding:0; width:min(560px,94vw); max-height:calc(100dvh - 24px); overflow:auto; background:var(--surface); color:var(--ink); box-shadow:0 30px 80px -20px rgba(0,0,0,.5); }
 dialog::backdrop{ background:rgba(14,21,34,.5); }
-.dlg{ padding:24px; }
+.dlg{ padding:24px; position:relative; }
+.dlg-x{ position:absolute; top:16px; right:16px; width:34px; height:34px; border-color:transparent; background:transparent; color:var(--muted); }
+.dlg-x:hover{ color:var(--ink); border-color:var(--line-strong); }
+#settingsForm h2{ padding-right:44px; }
 .dlg h2{ font-size:1.55rem; margin-bottom:6px; }
 .dlg .lead{ color:var(--muted); margin:0 0 18px; }
 .field{ display:grid; gap:6px; margin:0 0 14px; border:0; padding:0; min-width:0; }
@@ -475,6 +478,9 @@ textarea{ min-height:220px; resize:vertical; line-height:1.55; }
 
 <dialog id="settingsDlg" aria-labelledby="setTitle">
   <form class="dlg" id="settingsForm" novalidate>
+    <button type="button" class="icon-btn dlg-x" data-close aria-label="Close settings" title="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
     <h2 id="setTitle">Settings</h2>
     <p class="lead" id="setLead">Daylight shapes the page around how your day actually runs, so work gets its time and family gets theirs.</p>
     <div class="field">
@@ -1351,7 +1357,7 @@ function openSettings(first) {
   $('#setTitle').textContent = first ? 'Set up your day' : 'Settings';
   $('#saveSettings').textContent = first ? 'Start my day' : 'Save settings';
   $('#settingsDlg').showModal();
-  if (first) $('#sName').focus();
+  $('#sName').focus();
 }
 function syncModeFields() {
   const flex = ($('input[name="sMode"]:checked') || {}).value === 'flex';
