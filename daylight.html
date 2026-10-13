@@ -1,0 +1,1552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daylight</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='9' fill='%23EE9F32'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F4F1; --surface:#FFFFFF; --surface-2:#F6F8F5; --ink:#1E2833; --muted:#5D6A77;
+  --line:#DCE2DE; --line-strong:#B9C3C0;
+  --work:#3456A6; --work-soft:#E5EBF7;
+  --home:#2B8764; --home-soft:#E1F1E9;
+  --sun:#EE9F32; --sun-ink:#8A5300; --sun-soft:#FCEFD8;
+  --danger:#B9423A;
+  --shadow:0 1px 0 rgba(30,40,51,.04), 0 16px 36px -22px rgba(30,40,51,.45);
+  --serif:"Young Serif", Georgia, "Times New Roman", serif;
+  --sans:"Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11171E; --surface:#19212B; --surface-2:#1F2833; --ink:#E6EBF0; --muted:#98A5B3;
+    --line:#2A3441; --line-strong:#3E4B5B;
+    --work:#93AEF0; --work-soft:#22304D; --home:#6CCBA2; --home-soft:#173329;
+    --sun:#F4B24F; --sun-ink:#F4B24F; --sun-soft:#352915; --danger:#EE8077;
+    --shadow:0 16px 36px -22px rgba(0,0,0,.8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11171E; --surface:#19212B; --surface-2:#1F2833; --ink:#E6EBF0; --muted:#98A5B3;
+  --line:#2A3441; --line-strong:#3E4B5B;
+  --work:#93AEF0; --work-soft:#22304D; --home:#6CCBA2; --home-soft:#173329;
+  --sun:#F4B24F; --sun-ink:#F4B24F; --sun-soft:#352915; --danger:#EE8077;
+  --shadow:0 16px 36px -22px rgba(0,0,0,.8);
+  color-scheme: dark;
+}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+*,*::before,*::after{ box-sizing:inherit; }
+body{ margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); font-size:16px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+button,input,select,textarea{ font:inherit; color:inherit; }
+button{ cursor:pointer; }
+:focus-visible{ outline:2px solid var(--sun); outline-offset:2px; }
+[hidden]{ display:none !important; }
+
+.wrap{ max-width:1180px; margin:0 auto; padding:18px clamp(14px,3vw,32px) 40px; }
+
+/* Top bar */
+.topbar{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:16px; }
+.brand{ display:flex; align-items:center; gap:10px; font-family:var(--serif); font-size:1.4rem; }
+.brand svg{ width:28px; height:28px; }
+.top-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.streak{ font-size:.85rem; color:var(--sun-ink); background:var(--sun-soft); padding:5px 12px; border-radius:999px; font-weight:600; }
+.btn{ border:1px solid var(--line-strong); background:var(--surface); padding:8px 14px; border-radius:10px; font-weight:600; font-size:.9rem; line-height:1.2; }
+.btn:hover{ border-color:var(--ink); }
+.btn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.btn.primary:hover{ opacity:.88; }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.icon-btn{ width:38px; height:38px; display:grid; place-items:center; border-radius:10px; border:1px solid var(--line-strong); background:var(--surface); padding:0; }
+.icon-btn:hover{ border-color:var(--ink); }
+.icon-btn svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Hero: the sky changes with your day */
+.hero{
+  --sky1:#E1EAF5; --sky2:#EEF3EA; --hero-ink:#1E2833; --hero-muted:#4B5866; --hero-chip:rgba(255,255,255,.62);
+  --arc-work:#3456A6; --arc-fam:#E08A14; --arc-pre:#8C98A4; --on-work:#fff;
+  border-radius:26px; padding:clamp(20px,3.2vw,34px);
+  background:linear-gradient(155deg,var(--sky1),var(--sky2));
+  color:var(--hero-ink);
+  display:grid; grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr); gap:10px 36px; align-items:end;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.hero[data-phase="morning"]{ --sky1:#D6E4F6; --sky2:#FBE6C4; }
+.hero[data-phase="weekend"]{ --sky1:#DAEEE1; --sky2:#FBE8CA; }
+.hero[data-phase="evening"]{ --sky1:#2E2752; --sky2:#B8653F; --hero-ink:#FFF5E8; --hero-muted:rgba(255,245,232,.84); --hero-chip:rgba(255,255,255,.13); --arc-work:#AFC1F4; --arc-fam:#FFC266; --arc-pre:rgba(255,245,232,.5); --on-work:#14202C; }
+.hero[data-phase="night"]{ --sky1:#0E1530; --sky2:#2A2550; --hero-ink:#E9EDF8; --hero-muted:rgba(233,237,248,.78); --hero-chip:rgba(255,255,255,.09); --arc-work:#8FA6E6; --arc-fam:#E9B566; --arc-pre:rgba(233,237,248,.4); --on-work:#14202C; }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .hero:is([data-phase="morning"],[data-phase="work"],[data-phase="weekend"]){
+    --sky1:#1A2638; --sky2:#2C2A22; --hero-ink:#E8EDF2; --hero-muted:#A9B5C2; --hero-chip:rgba(255,255,255,.07);
+    --arc-work:#93AEF0; --arc-fam:#F4B24F; --arc-pre:#5F6B78; --on-work:#14202C;
+  }
+}
+:root[data-theme="dark"] .hero:is([data-phase="morning"],[data-phase="work"],[data-phase="weekend"]){
+  --sky1:#1A2638; --sky2:#2C2A22; --hero-ink:#E8EDF2; --hero-muted:#A9B5C2; --hero-chip:rgba(255,255,255,.07);
+  --arc-work:#93AEF0; --arc-fam:#F4B24F; --arc-pre:#5F6B78; --on-work:#14202C;
+}
+.hero h1{ font-family:var(--serif); font-weight:400; font-size:clamp(2.1rem,4.6vw,3.4rem); line-height:1.06; margin:0 0 14px; letter-spacing:-.012em; }
+.hero-status{ margin:0; font-size:1.06rem; color:var(--hero-muted); max-width:44ch; }
+.now-block{ margin-top:18px; display:grid; gap:10px; max-width:440px; }
+.now-switch{ display:inline-flex; gap:4px; padding:4px; border-radius:999px; background:var(--hero-chip); justify-self:start; }
+.now-switch button{ display:inline-flex; align-items:center; gap:8px; border:0; background:transparent; color:var(--hero-ink); padding:9px 16px; border-radius:999px; font-weight:600; font-size:.95rem; transition:background .2s, color .2s; }
+.now-switch button:hover{ background:var(--hero-chip); }
+.now-switch svg{ width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.now-switch button[data-mode="work"][aria-pressed="true"]{ background:var(--arc-work); color:var(--on-work); }
+.now-switch button[data-mode="family"][aria-pressed="true"]{ background:var(--arc-fam); color:#241503; }
+.balance{ display:flex; flex-wrap:wrap; gap:4px 20px; font-size:.92rem; color:var(--hero-muted); }
+.balance b{ color:var(--hero-ink); font-weight:600; }
+.bal i{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; }
+.bal.w i{ background:var(--arc-work); }
+.bal.f i{ background:var(--arc-fam); }
+.budget-bar{ height:6px; border-radius:999px; background:var(--hero-chip); overflow:hidden; max-width:320px; }
+.budget-bar span{ display:block; height:100%; width:0; background:var(--arc-work); border-radius:inherit; transition:width .6s; }
+.budget-bar.over span{ background:#E0564B; }
+.hero-insight{ margin:16px 0 0; padding:11px 15px; border-radius:14px; background:var(--hero-chip); font-size:.95rem; max-width:52ch; }
+.hero-insight:empty{ display:none; }
+.arc{ width:100%; height:auto; display:block; overflow:visible; }
+.arc path{ fill:none; stroke-linecap:round; }
+.arc .pre{ stroke:var(--arc-pre); stroke-width:3; stroke-dasharray:1 11; }
+.arc .w{ stroke:var(--arc-work); }
+.arc .f{ stroke:var(--arc-fam); }
+.arc .dim{ stroke-width:3; opacity:.32; }
+.arc .lit{ stroke-width:7; }
+.arc .horizon{ stroke:var(--hero-ink); opacity:.16; stroke-width:2; }
+.arc .drop{ stroke:var(--hero-ink); opacity:.2; stroke-width:2; stroke-dasharray:3 7; }
+.arc .tick{ fill:var(--hero-ink); opacity:.55; }
+.arc text{ fill:var(--hero-muted); font-family:var(--sans); font-size:22px; font-weight:600; }
+.arc .sun-core{ fill:var(--arc-fam); }
+.arc .sun-glow{ fill:var(--arc-fam); opacity:.22; }
+.arc .moon{ fill:#F3EBD6; }
+@media (max-width:820px){ .hero{ grid-template-columns:1fr; } }
+@media (max-width:560px){ .arc text{ font-size:40px; } .arc .lit{ stroke-width:10; } .arc .dim{ stroke-width:5; } }
+
+/* Layout */
+.layout{ display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:24px; margin-top:24px; align-items:start; }
+.main-col{ display:grid; gap:18px; min-width:0; }
+.rail{ display:grid; gap:16px; position:sticky; top:16px; }
+@media (max-width:1000px){
+  .layout{ grid-template-columns:1fr; }
+  .rail{ position:static; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); }
+}
+.panel{ background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:18px 20px; position:relative; }
+.panel-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
+h2{ font-family:var(--serif); font-weight:400; font-size:1.32rem; margin:0; line-height:1.2; }
+.count{ color:var(--muted); font-size:.875rem; }
+
+/* Today's three */
+.three{ background:var(--sun-soft); border-color:transparent; overflow:hidden; }
+.three-list{ list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+.three-slot{ border:1.5px dashed var(--line-strong); border:1.5px dashed color-mix(in srgb, var(--sun) 60%, transparent); color:var(--muted); padding:12px 14px; border-radius:12px; font-size:.95rem; }
+
+/* Add */
+.add{ background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:12px; display:grid; gap:10px; }
+.add-input{ width:100%; border:0; background:var(--surface-2); border-radius:13px; padding:14px 16px; font-size:1.06rem; }
+.add-input:focus{ outline:2px solid var(--sun); outline-offset:0; }
+.add-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.add-row .spacer{ flex:1; }
+.hint{ font-size:.82rem; color:var(--muted); margin:0 4px; }
+.seg{ display:inline-flex; background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:3px; gap:2px; }
+.seg button{ border:0; background:transparent; padding:6px 12px; border-radius:999px; font-size:.86rem; font-weight:600; color:var(--muted); }
+.seg button:hover{ color:var(--ink); }
+.seg button[aria-pressed="true"]{ background:var(--surface); color:var(--ink); box-shadow:0 0 0 1px var(--line-strong); }
+.seg button[data-val="work"][aria-pressed="true"]{ color:var(--work); }
+.seg button[data-val="personal"][aria-pressed="true"]{ color:var(--home); }
+.seg button[data-val="must"][aria-pressed="true"]{ color:var(--sun-ink); }
+.date-input{ border:1px solid var(--line); background:var(--surface-2); border-radius:999px; padding:5px 12px; font-size:.86rem; color:var(--muted); min-height:34px; }
+
+/* Columns */
+.view-row{ display:flex; justify-content:flex-end; margin-bottom:-6px; }
+.columns{ display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+.columns:not([data-view="both"]){ grid-template-columns:1fr; }
+.columns[data-view="work"] .col[data-cat="personal"], .columns[data-view="personal"] .col[data-cat="work"]{ display:none; }
+@media (max-width:720px){ .columns{ grid-template-columns:1fr; } }
+.col{ background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:16px 16px 12px; min-width:0; }
+.col[data-cat="work"], .task[data-cat="work"]{ --cat:var(--work); --cat-soft:var(--work-soft); }
+.col[data-cat="personal"], .task[data-cat="personal"]{ --cat:var(--home); --cat-soft:var(--home-soft); }
+.col-head{ display:flex; align-items:center; gap:10px; margin-bottom:6px; padding:0 4px; }
+.col-head .dot{ width:10px; height:10px; border-radius:50%; background:var(--cat); flex:none; }
+.col-head .count{ margin-left:auto; }
+
+.tasks{ list-style:none; margin:0; padding:0; }
+.task{ display:flex; align-items:flex-start; gap:12px; padding:11px 4px; border-bottom:1px solid var(--line); }
+.tasks > .task:last-child{ border-bottom:0; }
+.three-list .task{ background:var(--surface); border:1px solid transparent; border-radius:13px; padding:11px 12px; }
+.check{ flex:none; width:24px; height:24px; border-radius:50%; border:2px solid var(--cat); background:transparent; display:grid; place-items:center; padding:0; margin-top:1px; transition:background .2s; }
+.check svg{ width:14px; height:14px; fill:none; stroke:var(--surface); stroke-width:3; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:22; stroke-dashoffset:22; transition:stroke-dashoffset .3s ease .05s; }
+.check:hover{ background:var(--cat-soft); }
+.check[aria-checked="true"]{ background:var(--cat); }
+.check[aria-checked="true"] svg{ stroke-dashoffset:0; }
+.task-body{ flex:1; min-width:0; }
+.task-title{ display:block; overflow-wrap:anywhere; cursor:text; font-weight:500; border-radius:4px; }
+.task.is-done .task-title, .task.just-done .task-title{ text-decoration:line-through; text-decoration-thickness:1.5px; color:var(--muted); cursor:default; }
+.task-meta{ display:flex; flex-wrap:wrap; gap:6px; margin-top:5px; }
+.task-meta:empty{ display:none; }
+.badge{ font-size:.75rem; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--surface-2); color:var(--muted); border:1px solid var(--line); line-height:1.5; }
+.badge.must{ background:var(--sun-soft); color:var(--sun-ink); border-color:transparent; }
+.badge.overdue{ color:var(--danger); border-color:currentColor; background:transparent; }
+.badge.due-today{ color:var(--ink); border-color:var(--line-strong); }
+.badge.cat{ background:var(--cat-soft); color:var(--cat); border-color:transparent; }
+.badge.focused{ background:transparent; border-style:dashed; }
+.badge.pinned{ background:transparent; color:var(--sun-ink); border-color:var(--sun); }
+.task{ position:relative; }
+.task-actions{ display:flex; gap:2px; flex:none; }
+.act{ width:31px; height:31px; display:grid; place-items:center; border:0; background:transparent; border-radius:8px; color:var(--muted); padding:0; }
+@media (hover:hover) and (pointer:fine){
+  .task-actions{ position:absolute; right:0; top:6px; padding:0 2px 0 26px; background:linear-gradient(to right, transparent, var(--row-bg, var(--surface)) 22px); opacity:0; pointer-events:none; transition:opacity .15s; }
+  .three-list .task-actions{ right:8px; }
+  .task:hover .task-actions, .task:focus-within .task-actions{ opacity:1; pointer-events:auto; }
+}
+.act:hover{ background:var(--surface-2); color:var(--ink); }
+.act svg{ width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.act.pin.on{ color:var(--sun); }
+.act.pin.on svg{ fill:currentColor; }
+.edit-input{ width:100%; border:1px solid var(--line-strong); border-radius:8px; padding:3px 8px; background:var(--surface-2); }
+.empty{ color:var(--muted); padding:12px 4px 14px; font-size:.95rem; }
+.task.fresh{ animation:arrive 1.1s ease; }
+@keyframes arrive{ from{ background:var(--sun-soft); } to{ background:transparent; } }
+
+.fold{ margin-top:8px; border-top:1px dashed var(--line); padding-top:6px; }
+.fold summary{ cursor:pointer; color:var(--muted); font-size:.875rem; font-weight:600; padding:6px 4px; list-style:none; display:flex; align-items:center; gap:8px; border-radius:6px; }
+.fold summary::-webkit-details-marker{ display:none; }
+.fold summary::before{ content:""; width:7px; height:7px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(-45deg); transition:transform .2s; }
+.fold[open] summary::before{ transform:rotate(45deg); }
+.fold-actions{ display:flex; justify-content:flex-end; }
+.link-btn{ border:0; background:none; color:var(--muted); font-size:.85rem; font-weight:600; text-decoration:underline; text-underline-offset:3px; padding:4px 6px; }
+.link-btn:hover{ color:var(--ink); }
+.link-btn.danger{ color:var(--danger); }
+.resting-note{ background:var(--work-soft); border-radius:14px; padding:14px 16px; font-size:.95rem; margin:6px 0 4px; }
+.resting-note p{ margin:0 0 6px; }
+.peek-note{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:.85rem; color:var(--muted); background:var(--surface-2); border-radius:10px; padding:6px 6px 6px 12px; margin:4px 0; }
+.col.resting .list-open, .col.resting .fold{ display:none; }
+
+/* Focus timer */
+.timer{ position:relative; width:196px; height:196px; margin:4px auto 10px; }
+.timer svg{ width:100%; height:100%; transform:rotate(-90deg); }
+.ring-bg{ fill:none; stroke:var(--surface-2); stroke-width:11; }
+.ring{ fill:none; stroke:var(--sun); stroke-width:11; stroke-linecap:round; transition:stroke-dashoffset .3s linear, stroke .3s; }
+.focus[data-mode="short"] .ring{ stroke:var(--home); }
+.time{ position:absolute; inset:0; display:grid; place-items:center; font-family:var(--sans); font-weight:600; font-size:2.6rem; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+.mode-row{ display:flex; justify-content:center; }
+.mode-row .seg{ flex-wrap:wrap; justify-content:center; border-radius:18px; }
+.mode-row .seg button{ padding:6px 9px; font-size:.84rem; }
+.focus-on{ text-align:center; color:var(--muted); font-size:.9rem; margin:0 0 12px; min-height:1.5em; overflow-wrap:anywhere; }
+.focus-on strong{ color:var(--ink); font-weight:600; }
+.timer-actions{ display:flex; gap:8px; justify-content:center; }
+
+/* Tip */
+.tip{ background:var(--home-soft); border-color:transparent; }
+.tip h2{ font-size:1.18rem; margin:0 0 6px; display:flex; gap:10px; align-items:flex-start; }
+.tip h2 svg{ width:20px; height:20px; flex:none; margin-top:3px; color:var(--home); }
+.tip p{ margin:0 0 6px; color:var(--ink); opacity:.86; }
+.tip .link-btn{ padding-left:0; }
+
+/* Momentum */
+.stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.stat b{ display:block; font-family:var(--serif); font-weight:400; font-size:1.65rem; line-height:1.1; }
+.stat span{ font-size:.8rem; color:var(--muted); }
+.heat{ display:grid; grid-template-columns:repeat(14,1fr); gap:4px; }
+.cell{ aspect-ratio:1; border-radius:4px; background:var(--surface-2); border:1px solid var(--line); }
+.cell.l1{ background:color-mix(in srgb, var(--sun) 32%, var(--surface)); border-color:transparent; }
+.cell.l2{ background:color-mix(in srgb, var(--sun) 64%, var(--surface)); border-color:transparent; }
+.cell.l3{ background:var(--sun); border-color:transparent; }
+.cell.today{ outline:2px solid var(--ink); outline-offset:1px; }
+.heat-legend{ display:flex; justify-content:space-between; font-size:.75rem; color:var(--muted); margin-top:8px; }
+
+/* Footer */
+.foot{ margin-top:30px; color:var(--muted); font-size:.85rem; display:flex; justify-content:space-between; gap:8px 16px; flex-wrap:wrap; }
+.foot p{ margin:0; }
+.storage-note{ color:var(--danger); font-weight:600; }
+@media (pointer:coarse){ .kbd-hint{ display:none; } }
+kbd{ font-family:var(--sans); font-size:.78rem; border:1px solid var(--line-strong); border-bottom-width:2px; border-radius:5px; padding:0 5px; background:var(--surface); }
+
+/* Toast */
+.toast{ position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translate(-50%,16px); background:var(--ink); color:var(--paper); padding:12px 16px 12px 18px; border-radius:14px; font-weight:500; max-width:min(92vw,520px); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; z-index:50; box-shadow:var(--shadow); display:flex; align-items:center; gap:14px; }
+.toast.show{ opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+.toast-btn{ border:0; background:transparent; color:var(--sun); font-weight:700; padding:2px 4px; }
+
+/* Dialogs */
+dialog{ border:0; border-radius:22px; padding:0; width:min(560px,94vw); max-height:calc(100dvh - 24px); overflow:auto; background:var(--surface); color:var(--ink); box-shadow:0 30px 80px -20px rgba(0,0,0,.5); }
+dialog::backdrop{ background:rgba(14,21,34,.5); }
+.dlg{ padding:24px; }
+.dlg h2{ font-size:1.55rem; margin-bottom:6px; }
+.dlg .lead{ color:var(--muted); margin:0 0 18px; }
+.field{ display:grid; gap:6px; margin:0 0 14px; border:0; padding:0; min-width:0; }
+.field label, .field legend{ font-size:.875rem; font-weight:600; padding:0; margin-bottom:6px; }
+.field label{ margin-bottom:0; }
+.mode-cards{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media (max-width:520px){ .mode-cards{ grid-template-columns:1fr; } }
+.mode-card{ position:relative; display:block; }
+.mode-card input{ position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+.mode-card > span{ display:block; height:100%; border:1.5px solid var(--line-strong); border-radius:14px; padding:12px 14px; }
+.mode-card b{ display:block; font-weight:600; font-size:.95rem; margin-bottom:3px; }
+.mode-card small{ display:block; color:var(--muted); font-size:.84rem; font-weight:400; line-height:1.4; }
+.mode-card input:checked + span{ border-color:var(--work); background:var(--work-soft); }
+.mode-card input:focus-visible + span{ outline:2px solid var(--sun); outline-offset:2px; }
+.field input[type="text"], .field input[type="time"], .field input[type="number"], .field select, textarea{ border:1px solid var(--line-strong); background:var(--surface-2); border-radius:10px; padding:9px 12px; width:100%; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+@media (max-width:520px){ .grid3{ grid-template-columns:1fr; } }
+.days{ display:flex; flex-wrap:wrap; gap:6px; }
+.day{ position:relative; }
+.day input{ position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+.day span{ display:inline-block; padding:6px 12px; border-radius:999px; border:1px solid var(--line-strong); font-size:.86rem; font-weight:600; color:var(--muted); }
+.day input:checked + span{ background:var(--work-soft); color:var(--work); border-color:var(--work); }
+.day input:focus-visible + span{ outline:2px solid var(--sun); outline-offset:2px; }
+.dlg-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; padding-top:16px; border-top:1px solid var(--line); }
+#saveSettings{ margin-left:auto; }
+.foot-left{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+textarea{ min-height:220px; resize:vertical; line-height:1.55; }
+.dump-opts{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:12px 0 4px; }
+.form-error{ color:var(--danger); font-size:.9rem; margin:0 0 8px; min-height:1.2em; }
+
+/* Celebration */
+.burst{ position:absolute; width:9px; height:9px; border-radius:50%; left:var(--x); top:var(--y); pointer-events:none; animation:burst 1s cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes burst{ to{ transform:translate(var(--dx),var(--dy)) scale(.2); opacity:0; } }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 22h26" stroke="var(--line-strong)" stroke-width="2" stroke-linecap="round"/><path d="M8 22a8 8 0 0 1 16 0" fill="var(--sun)"/></svg>
+      Daylight
+    </div>
+    <div class="top-actions">
+      <span class="streak" id="streakBadge" hidden></span>
+      <button class="btn" id="dumpBtn" type="button">Brain dump</button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme" title="Switch theme">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" type="button" aria-label="Settings" title="Settings">
+        <svg viewBox="0 0 24 24"><path d="M4 7h9M18 7h2M4 17h3M11 17h9"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="8.5" cy="17" r="2.3"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="hero" id="hero" data-phase="work">
+    <div class="hero-text">
+      <h1 id="greeting">Hello.</h1>
+      <p class="hero-status" id="heroStatus"></p>
+      <div class="now-block" id="nowBlock" hidden>
+        <div class="now-switch" id="nowSwitch" role="group" aria-label="What are you doing right now?">
+          <button type="button" data-mode="work" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="7.5" width="17" height="12" rx="2"/><path d="M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M3.5 12.5h17"/></svg>Working</button>
+          <button type="button" data-mode="family" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.5V19.5h12V9.5"/><path d="M12 17.2s-2.6-1.5-2.6-3.2a1.4 1.4 0 0 1 2.6-.7 1.4 1.4 0 0 1 2.6.7c0 1.7-2.6 3.2-2.6 3.2z"/></svg>Family time</button>
+        </div>
+        <div class="balance">
+          <span class="bal w"><i></i>Work <b id="balWork">0m</b><span id="balBudget"></span></span>
+          <span class="bal f"><i></i>Family <b id="balFam">0m</b></span>
+        </div>
+        <div class="budget-bar" id="budgetBar" hidden><span id="budgetFill"></span></div>
+      </div>
+      <p class="hero-insight" id="heroInsight"></p>
+    </div>
+    <svg class="arc" id="arc" viewBox="0 -16 1000 258" role="img" aria-labelledby="arcTitle">
+      <title id="arcTitle">Where you are in your day</title>
+      <defs><mask id="moonMask"><circle r="16" fill="#fff"/><circle r="14" cx="7" cy="-6" fill="#000"/></mask></defs>
+      <line class="horizon" x1="40" y1="198" x2="960" y2="198"/>
+      <g id="dimG"></g>
+      <g id="litG"></g>
+      <line id="drop" class="drop"/>
+      <circle id="tickW" class="tick" r="5"/>
+      <circle id="tickF" class="tick" r="5"/>
+      <text id="lblW" y="236" text-anchor="middle"></text>
+      <text id="lblF" y="236" text-anchor="middle"></text>
+      <g id="sun"><circle class="sun-glow" r="32"/><circle class="sun-core" r="17"/></g>
+      <g id="moon" transform="translate(820 70)"><circle class="moon" r="16" mask="url(#moonMask)"/></g>
+    </svg>
+  </section>
+
+  <main class="layout">
+    <div class="main-col">
+
+      <section class="panel three" id="threePanel" aria-labelledby="threeTitle">
+        <div class="panel-head">
+          <h2 id="threeTitle">Today’s three</h2>
+          <span class="count" id="threeCount"></span>
+        </div>
+        <ul class="three-list" id="threeList"></ul>
+      </section>
+
+      <form class="add" id="addForm" autocomplete="off">
+        <input class="add-input" id="addInput" type="text" placeholder="What needs doing?" aria-label="New task">
+        <div class="add-row">
+          <div class="seg" data-key="addCat" role="group" aria-label="Category">
+            <button type="button" data-val="work">Work</button>
+            <button type="button" data-val="personal">Personal</button>
+          </div>
+          <div class="seg" data-key="addPri" role="group" aria-label="Priority">
+            <button type="button" data-val="must">Must</button>
+            <button type="button" data-val="should">Should</button>
+            <button type="button" data-val="later">Later</button>
+          </div>
+          <input class="date-input" id="addDue" type="date" aria-label="Due date (optional)" title="Due date (optional)">
+          <span class="spacer"></span>
+          <button class="btn primary" type="submit">Add task</button>
+        </div>
+        <p class="hint">Type <strong>#work</strong> or <strong>#personal</strong> to sort as you go, and end with <strong>!</strong> to mark it Must.</p>
+      </form>
+
+      <div class="view-row">
+        <div class="seg" data-key="view" role="group" aria-label="Show lists">
+          <button type="button" data-val="both">Both</button>
+          <button type="button" data-val="work">Work</button>
+          <button type="button" data-val="personal">Personal</button>
+        </div>
+      </div>
+
+      <div class="columns" id="columns" data-view="both">
+        <section class="col" data-cat="work" aria-labelledby="workTitle">
+          <header class="col-head"><span class="dot"></span><h2 id="workTitle">Work</h2><span class="count"></span></header>
+          <div class="resting-note" hidden></div>
+          <div class="peek-note" hidden><span>Work is open after hours.</span><button type="button" class="link-btn" data-unpeek>Put work away</button></div>
+          <ul class="tasks list-open"></ul>
+          <details class="fold fold-later"><summary>Later <span class="n"></span></summary><ul class="tasks"></ul></details>
+          <details class="fold fold-done"><summary>Done <span class="n"></span></summary><ul class="tasks"></ul>
+            <div class="fold-actions"><button type="button" class="link-btn" data-clear="work">Clear done tasks</button></div></details>
+        </section>
+        <section class="col" data-cat="personal" aria-labelledby="personalTitle">
+          <header class="col-head"><span class="dot"></span><h2 id="personalTitle">Personal</h2><span class="count"></span></header>
+          <ul class="tasks list-open"></ul>
+          <details class="fold fold-later"><summary>Later <span class="n"></span></summary><ul class="tasks"></ul></details>
+          <details class="fold fold-done"><summary>Done <span class="n"></span></summary><ul class="tasks"></ul>
+            <div class="fold-actions"><button type="button" class="link-btn" data-clear="personal">Clear done tasks</button></div></details>
+        </section>
+      </div>
+    </div>
+
+    <aside class="rail">
+      <section class="panel focus" id="focusPanel" data-mode="focus" aria-labelledby="focusTitle">
+        <div class="panel-head"><h2 id="focusTitle">Focus</h2></div>
+        <div class="mode-row">
+          <div class="seg" data-key="timerMode" role="group" aria-label="Timer length">
+            <button type="button" data-val="f5" aria-label="5 minute focus">5m</button>
+            <button type="button" data-val="f15" aria-label="15 minute focus">15m</button>
+            <button type="button" data-val="focus" aria-label="25 minute focus">25m</button>
+            <button type="button" data-val="deep" aria-label="50 minute focus">50m</button>
+            <button type="button" data-val="short" aria-label="5 minute break">Break</button>
+          </div>
+        </div>
+        <div class="timer">
+          <svg viewBox="0 0 200 200" aria-hidden="true"><circle class="ring-bg" cx="100" cy="100" r="86"/><circle class="ring" id="ring" cx="100" cy="100" r="86"/></svg>
+          <div class="time" id="timeText" role="timer" aria-live="off">25:00</div>
+        </div>
+        <p class="focus-on" id="focusOn"></p>
+        <div class="timer-actions">
+          <button class="btn primary" id="timerBtn" type="button">Start</button>
+          <button class="btn" id="timerReset" type="button">Reset</button>
+        </div>
+      </section>
+
+      <section class="panel tip" aria-live="polite">
+        <h2><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="tipTitle"></span></h2>
+        <p id="tipBody"></p>
+        <button type="button" class="link-btn" id="nextTip">Show another tip</button>
+      </section>
+
+      <section class="panel" aria-labelledby="momTitle">
+        <div class="panel-head"><h2 id="momTitle">Momentum</h2></div>
+        <div class="stats">
+          <div class="stat"><b id="statDone">0</b><span>done today</span></div>
+          <div class="stat"><b id="statFocus">0m</b><span>focused today</span></div>
+          <div class="stat"><b id="statStreak">0</b><span id="statStreakLbl">day streak</span></div>
+        </div>
+        <div class="heat" id="heat" role="img"></div>
+        <div class="heat-legend"><span>Two weeks ago</span><span>Today</span></div>
+      </section>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <p>Your tasks are saved in this browser only. Export a backup from Settings now and then.</p>
+    <p class="kbd-hint" id="kbdHint">Press <kbd>N</kbd> to add a task from anywhere.</p>
+    <p class="storage-note" id="storageNote" hidden>Saving is unavailable here, so tasks will clear when you close this page. Open the file in your own browser or server to keep them.</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="settingsDlg" aria-labelledby="setTitle">
+  <form class="dlg" id="settingsForm" novalidate>
+    <h2 id="setTitle">Settings</h2>
+    <p class="lead" id="setLead">Daylight shapes the page around how your day actually runs, so work gets its time and family gets theirs.</p>
+    <div class="field">
+      <label for="sName">What should we call you?</label>
+      <input type="text" id="sName" autocomplete="given-name" placeholder="Your first name">
+    </div>
+    <fieldset class="field"><legend>How does your work day run?</legend>
+      <div class="mode-cards">
+        <label class="mode-card"><input type="radio" name="sMode" value="fixed"><span><b>Set hours, then a hard stop</b><small>Work has fixed hours. When it ends, the evening belongs to family.</small></span></label>
+        <label class="mode-card"><input type="radio" name="sMode" value="flex"><span><b>On and off through the day</b><small>Work and family time mix. You switch between them as you go.</small></span></label>
+      </div>
+    </fieldset>
+    <div class="grid3" id="flexFields" hidden>
+      <div class="field"><label for="sDayStart">Day starts</label><input type="time" id="sDayStart"></div>
+      <div class="field"><label for="sDayEnd">Day ends</label><input type="time" id="sDayEnd"></div>
+      <div class="field"><label for="sBudget">Work hours per day</label><input type="number" id="sBudget" min="0" max="16" step="0.5" inputmode="decimal"></div>
+      <p class="hint" style="grid-column:1/-1; margin:-6px 0 12px">You’ll switch between Working and Family time from the top of the page, and the arc fills in as you go. Set work hours to 0 for no daily limit.</p>
+    </div>
+    <div class="grid3" id="fixedFields">
+      <div class="field"><label for="sStart">Work starts</label><input type="time" id="sStart"></div>
+      <div class="field"><label for="sEnd">Work stops</label><input type="time" id="sEnd"></div>
+      <div class="field"><label for="sFam">Family time until</label><input type="time" id="sFam"></div>
+    </div>
+    <fieldset class="field"><legend>Work days</legend><div class="days" id="sDays"></div></fieldset>
+    <div class="field">
+      <label for="sTheme">Theme</label>
+      <select id="sTheme"><option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select>
+    </div>
+    <p class="form-error" id="setError" role="alert"></p>
+    <div class="dlg-foot">
+      <div class="foot-left">
+        <button type="button" class="btn" id="exportBtn">Export backup</button>
+        <button type="button" class="btn" id="importBtn">Import backup</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+        <button type="button" class="link-btn danger" id="resetBtn">Delete all data</button>
+      </div>
+      <button type="submit" class="btn primary" id="saveSettings">Save settings</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dumpDlg" aria-labelledby="dumpTitle">
+  <form class="dlg" id="dumpForm">
+    <h2 id="dumpTitle">Brain dump</h2>
+    <p class="lead">Write down everything on your mind, one task per line. Don’t sort or judge yet; just get it out of your head.</p>
+    <textarea id="dumpText" aria-label="Tasks, one per line" placeholder="Reply to the vendor email #work&#10;Book a dentist appointment&#10;Plan a Sunday outing with family #personal&#10;Finish the quarterly report !"></textarea>
+    <div class="dump-opts">
+      <span class="hint">Lines without a tag go to</span>
+      <div class="seg" data-key="dumpCat" role="group" aria-label="Default category">
+        <button type="button" data-val="work">Work</button>
+        <button type="button" data-val="personal">Personal</button>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn" data-close>Cancel</button>
+      <button type="submit" class="btn primary" id="dumpAdd" disabled>Add tasks</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Helpers ---------- */
+const KEY = 'daylight.v1';
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const z = n => String(n).padStart(2, '0');
+const dk = (d = new Date()) => `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+const toMin = s => { const [h, m] = String(s || '0:0').split(':').map(Number); return (h || 0) * 60 + (m || 0); };
+const fmtClock = m => new Date(2000, 0, 1, Math.floor(m / 60) % 24, m % 60).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const fmtDur = m => { m = Math.max(0, Math.round(m)); const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const plural = (n, word) => n === 1 ? word : word + 's';
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shortDate = s => new Date(s + 'T00:00').toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Content ---------- */
+const TIPS = [
+  ['Plan 70%, not 100%', 'Leave room for interruptions. A day planned to the minute is a day you will end feeling behind.'],
+  ['Do the hard one first', 'Your sharpest focus usually comes early. Spend it on the task you most want to avoid.'],
+  ['The two-minute rule', 'If something takes less than two minutes, do it now instead of writing it down.'],
+  ['Batch the small stuff', 'Group emails, calls and quick replies into one block instead of letting them interrupt you all day.'],
+  ['A hard stop is a feature', 'Ending work at a fixed time forces better choices during the day. The deadline does the prioritising for you.'],
+  ['Ask what it replaces', 'When new work lands on your plate, ask which existing task should move to make room for it.'],
+  ['Be where you are', 'Phone in another room during dinner. Thirty undistracted minutes beat three distracted hours.'],
+  ['Done beats perfect', 'Ship the good-enough version, then improve it if it still matters next week.'],
+  ['Empty your head', 'Anything you try to remember keeps nagging you. Write it here and let your mind rest.'],
+  ['Shrink the task', 'Stuck? Rewrite it as the very next physical action, like “open the report and write the first heading.”'],
+  ['One thing at a time', 'Switching between tasks costs more than it feels like. Close the tabs you aren’t using.'],
+  ['Book your focus first', 'Block 90 minutes for deep work on your calendar before meetings fill the day for you.'],
+  ['Say no kindly', '“I can’t take this on this week, but I could start next Tuesday” is a complete and honest answer.'],
+  ['Friday review', 'Ten minutes on Friday: what got done, what moves to next week, and what you can drop entirely.'],
+  ['Breaks are part of the work', 'A short break every hour keeps your afternoon as sharp as your morning.'],
+  ['Small wins build momentum', 'Finishing a tiny task first makes the big one feel easier to start.'],
+  ['Delegate or drop', 'If someone else can do it 80% as well, let them. Your time is the scarcest thing you have.'],
+  ['Three before the inbox', 'Choose today’s three before you open email or chat. Otherwise other people choose them for you.'],
+  ['Match energy to tasks', 'Hard thinking in your high-energy hours, admin and errands in the afternoon slump.'],
+  ['Family is a Must too', 'Put time with family on your list with the same weight as a work deadline.'],
+  ['A shutdown ritual', 'Before you stop: glance at tomorrow, note loose ends, close the laptop. Then you’re done.'],
+  ['Shorter lists win', 'A list of seven gets done. A list of forty gets avoided. Move the rest to Later.'],
+  ['Later is a decision', 'Moving a task to Later isn’t failing. It’s choosing what deserves your attention now.'],
+  ['Notifications off', 'Check messages at set times instead of the moment they arrive.'],
+  ['Sunday reset', 'On Sunday evening, write down the three outcomes that would make next week a good one.'],
+  ['Notice what you finished', 'At the end of the day, look at your Done list before you look at what’s left.'],
+  ['Overdue isn’t guilt', 'Give overdue tasks an honest new date, or delete them. Guilt has never finished a task.'],
+  ['Walk it out', 'A ten-minute walk often unsticks a problem faster than another hour of staring at it.'],
+  ['Meetings need a reason', 'No agenda and no decision to make? Ask whether a short message would do instead.'],
+  ['Protect your mornings', 'Even one meeting-free morning a week can clear a surprising amount of real work.']
+];
+const CHEERS_WORK = ['Done. One less thing on your mind.', 'Nice work. Keep the momentum going.', 'Checked off. Take a breath before the next one.', 'That counts. On to the next.', 'Progress, not perfection. Well done.'];
+const CHEERS_HOME = ['Done. Home matters as much as work.', 'Nice. One less thing to carry.', 'Checked off. Good for you.', 'Done. Small things at home add up.'];
+const EMPTY = {
+  work: 'Nothing open at work. Add what’s on your plate, or enjoy the clear desk.',
+  personal: 'Nothing here yet. Add something for home: a call to make, an errand, a plan with family.'
+};
+const MODES = { f5: { min: 5, label: 'Focus' }, f15: { min: 15, label: 'Focus' }, focus: { min: 25, label: 'Focus' }, deep: { min: 50, label: 'Deep focus' }, short: { min: 5, label: 'Break' } };
+const PRI = { must: 0, should: 1, later: 2 };
+const DAYS = [[1, 'Mon'], [2, 'Tue'], [3, 'Wed'], [4, 'Thu'], [5, 'Fri'], [6, 'Sat'], [0, 'Sun']];
+
+const ICON = {
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  star: '<svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.6 9.7l5.8-.8z"/></svg>',
+  target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg>',
+  later: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  back: '<svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 6 6"/></svg>',
+  trash: '<svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>'
+};
+
+/* ---------- State ---------- */
+const DEFAULTS = {
+  tasks: [],
+  settings: { name: '', mode: 'fixed', workStart: '09:00', workEnd: '18:30', familyUntil: '22:00', dayStart: '07:00', dayEnd: '22:00', workBudget: 8, workDays: [1, 2, 3, 4, 5], theme: 'auto' },
+  sessions: [],
+  budgetNotified: null,
+  log: {},
+  timer: { mode: 'focus', running: false, endAt: null, remaining: 25 * 60, mark: null, lastFocus: 'focus' },
+  focusTaskId: null,
+  tipIndex: -1,
+  setupDone: false,
+  view: 'both',
+  addCat: 'work',
+  addPri: 'should',
+  dumpCat: 'personal',
+  peekWork: null,
+  celebrated: null
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+
+let storageOK = true;
+try { localStorage.setItem(KEY + '.probe', '1'); localStorage.removeItem(KEY + '.probe'); } catch (e) { storageOK = false; }
+
+function load() {
+  if (!storageOK) return null;
+  try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+}
+const loaded = load();
+const state = Object.assign(clone(DEFAULTS), loaded || {});
+state.settings = Object.assign({}, DEFAULTS.settings, (loaded && loaded.settings) || {});
+state.timer = Object.assign({}, DEFAULTS.timer, (loaded && loaded.timer) || {});
+if (!Array.isArray(state.tasks)) state.tasks = [];
+if (!state.log || typeof state.log !== 'object') state.log = {};
+if (!Array.isArray(state.sessions)) state.sessions = [];
+
+function save() {
+  if (!storageOK) return;
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { storageOK = false; renderStorageNote(); }
+}
+const find = id => state.tasks.find(t => t.id === id);
+const logFor = k => (state.log[k] = state.log[k] || { done: 0, work: 0, personal: 0, focus: 0 });
+
+function newTask(p, due = '') {
+  return { id: uid(), title: p.title, cat: p.cat, pri: p.pri, due, top: false, pinnedAt: 0, done: false, doneAt: null, createdAt: Date.now() };
+}
+function parseQuick(raw, cat, pri) {
+  let title = ' ' + raw + ' ';
+  if (/\s#(w|work|office)(?=\s)/i.test(title)) cat = 'work';
+  if (/\s#(p|personal|home|family)(?=\s)/i.test(title)) cat = 'personal';
+  title = title.replace(/\s#(w|work|office|p|personal|home|family)(?=\s)/gi, ' ');
+  if (/^\s*!+|!+\s*$/.test(title)) { pri = 'must'; title = title.replace(/^\s*!+|!+\s*$/g, ''); }
+  return { title: title.replace(/\s+/g, ' ').trim(), cat, pri };
+}
+function normalize() {
+  const today = dk();
+  state.tasks.forEach(t => { if (t.top && t.done && t.doneAt && dk(new Date(t.doneAt)) !== today) t.top = false; });
+}
+function pruneLog() {
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  const ck = dk(cutoff), cts = cutoff.getTime();
+  Object.keys(state.log).forEach(k => { if (k < ck) delete state.log[k]; });
+  state.sessions = state.sessions.filter(s => (s.end || Date.now()) > cts);
+}
+
+/* ---------- Work / family sessions (on-and-off mode) ---------- */
+const isFlex = () => state.settings.mode === 'flex';
+const midnight = (d = new Date()) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+const minsOf = ts => { const d = new Date(ts); return d.getHours() * 60 + d.getMinutes(); };
+const curSession = () => { const s = state.sessions[state.sessions.length - 1]; return s && !s.end ? s : null; };
+const currentMode = () => isFlex() ? ((curSession() || {}).mode || null) : null;
+function totals(key = dk()) {
+  const start = new Date(key + 'T00:00').getTime(), end = start + 86400000, now = Date.now();
+  const out = { work: 0, family: 0 };
+  state.sessions.forEach(s => {
+    const a = Math.max(s.start, start), b = Math.min(s.end || now, end);
+    if (b > a) out[s.mode] += (b - a) / 60000;
+  });
+  return out;
+}
+function switchMode(mode, quiet) {
+  const now = Date.now(), cur = curSession();
+  if (cur && cur.mode === mode) return;
+  if (cur) { if (now - cur.start < 60000) state.sessions.pop(); else cur.end = now; }
+  const prev = state.sessions[state.sessions.length - 1];
+  if (prev && prev.mode === mode && prev.end && now - prev.end < 120000) prev.end = null; // undo a quick mis-tap
+  else state.sessions.push({ mode, start: now, end: null });
+  state.peekWork = null;
+  save(); renderAll();
+  if (!quiet) toast(mode === 'work' ? 'Working. Family time is one tap away.' : 'Family time. Work is tucked away until you switch back.');
+}
+function stopSession() { const cur = curSession(); if (cur) cur.end = Math.max(cur.start + 1, Date.now()); }
+function closeStale() {
+  const cur = curSession(); if (!cur) return;
+  const startDay = dk(new Date(cur.start));
+  if (startDay !== dk()) {
+    const base = new Date(startDay + 'T00:00').getTime();
+    const deTs = base + toMin(state.settings.dayEnd) * 60000;
+    cur.end = deTs > cur.start ? deTs : base + 86400000 - 1;
+  }
+}
+function autoCloseFamily() {
+  if (!isFlex()) return false;
+  const cur = curSession(); if (!cur || cur.mode !== 'family') return false;
+  const deTs = midnight() + toMin(state.settings.dayEnd) * 60000;
+  if (Date.now() >= deTs && cur.start < deTs) { cur.end = deTs; save(); return true; }
+  return false;
+}
+function budgetCheck() {
+  if (!isFlex() || currentMode() !== 'work' || !dayInfo().workday) return;
+  const b = +state.settings.workBudget || 0;
+  if (b && state.budgetNotified !== dk() && totals().work >= b * 60) {
+    state.budgetNotified = dk(); save();
+    toast(`You’ve reached today’s ${fmtDur(b * 60)} work budget. Time to start wrapping up.`);
+  }
+}
+
+/* ---------- Day logic ---------- */
+function dayInfo(now = new Date()) {
+  const s = state.settings;
+  const m = now.getHours() * 60 + now.getMinutes();
+  const ws = toMin(s.workStart), we = toMin(s.workEnd), fu = toMin(s.familyUntil);
+  const ds = toMin(s.dayStart), de = toMin(s.dayEnd);
+  const workday = s.workDays.includes(now.getDay());
+  const flex = s.mode === 'flex';
+  let phase;
+  if (flex) {
+    if (m >= de || m < 5 * 60) phase = 'night';
+    else if (m < 12 * 60) phase = workday ? 'morning' : 'weekend';
+    else if (m < 17 * 60 + 30) phase = workday ? 'work' : 'weekend';
+    else phase = 'evening';
+  }
+  else if (!workday) phase = (m < 5 * 60 || m >= fu) ? 'night' : 'weekend';
+  else if (m < ws) phase = m < 5 * 60 ? 'night' : 'morning';
+  else if (m < we) phase = 'work';
+  else if (m < fu) phase = 'evening';
+  else phase = 'night';
+  return { m, ws, we, fu, ds, de, workday, flex, phase };
+}
+function nextWorkLabel(now = new Date()) {
+  const s = state.settings, ws = toMin(s.workStart);
+  const m = now.getHours() * 60 + now.getMinutes();
+  if (s.workDays.includes(now.getDay()) && m < ws) return `today at ${fmtClock(ws)}`;
+  for (let i = 1; i <= 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() + i);
+    if (s.workDays.includes(d.getDay())) {
+      return `${i === 1 ? 'tomorrow' : d.toLocaleDateString([], { weekday: 'long' })} at ${fmtClock(ws)}`;
+    }
+  }
+  return 'your next work day';
+}
+function restingTime() {
+  const i = dayInfo();
+  if (i.flex) {
+    const mode = currentMode();
+    if (mode === 'work') return false;
+    if (mode === 'family') return true;
+    return !i.workday || i.m >= i.de || i.m < 5 * 60;
+  }
+  return !i.workday || i.phase === 'evening' || i.phase === 'night';
+}
+function workResting() { return restingTime() && state.peekWork !== dk(); }
+function restingMessage(waiting) {
+  const i = dayInfo();
+  const w = waiting ? ` ${waiting} ${plural(waiting, 'task')} will be waiting for you.` : '';
+  if (!i.flex) return `Work is resting until ${nextWorkLabel()}.${w}`;
+  if (currentMode() === 'family') return `You’re in family time, so work is tucked away. Switch to Working when you’re ready.${w}`;
+  if (!i.workday) return `It’s your day off, so work is tucked away.${w}`;
+  return `Your day is over, so work is tucked away until tomorrow.${w}`;
+}
+
+function threeTasks() {
+  const today = dk();
+  return state.tasks
+    .filter(t => t.top && (!t.done || (t.doneAt && dk(new Date(t.doneAt)) === today)))
+    .sort((a, b) => (a.pinnedAt || 0) - (b.pinnedAt || 0))
+    .slice(0, 3);
+}
+function insight() {
+  const today = dk(), info = dayInfo();
+  const open = state.tasks.filter(t => !t.done && t.pri !== 'later');
+  const musts = open.filter(t => t.pri === 'must').length;
+  const overdue = open.filter(t => t.due && t.due < today).length;
+  const three = threeTasks();
+  const workOpen = open.filter(t => t.cat === 'work').length;
+  if (state.tasks.length === 0) return 'Start with a brain dump: get every task out of your head and onto this page. Sorting comes after.';
+  if (three.length === 3 && three.every(t => t.done)) return 'Today’s three are done. Anything else today is a bonus.';
+  if (info.flex) {
+    const mode = currentMode(), cur = curSession(), budget = +state.settings.workBudget || 0, tot = totals();
+    if (mode === 'work' && info.m >= info.de) return `It’s past ${fmtClock(info.de)} and you’re still working. Note where you stopped and call it a day.`;
+    if (mode === 'work' && !info.workday) return 'It’s your day off. Keep this work block short so it doesn’t take the whole day.';
+    if (mode === 'work' && budget && tot.work >= budget * 60) return `You’ve used today’s ${fmtDur(budget * 60)} work budget. Wrap up what you’re on; the rest can wait for tomorrow.`;
+    if (mode === 'work' && cur && Date.now() - cur.start > 150 * 60000) return `You’ve been working for ${fmtDur((Date.now() - cur.start) / 60000)} straight. A short break with family could reset your focus.`;
+  } else if (restingTime() && workOpen) {
+    return `${workOpen} work ${plural(workOpen, 'task')} will still be here ${nextWorkLabel()}. This time is for you and your family.`;
+  }
+  if (overdue) return `${overdue} ${overdue === 1 ? 'task is' : 'tasks are'} overdue. Give ${overdue === 1 ? 'it' : 'them'} an honest new date, or let ${overdue === 1 ? 'it' : 'them'} go.`;
+  if (musts > 5) return `${musts} tasks are marked Must. If everything is urgent, nothing is. Star the three that matter most.`;
+  if (three.length === 0 && open.length && ['morning', 'work', 'weekend'].includes(info.phase)) return 'Star today’s three before you open email or chat.';
+  if (open.length > 20) return `${open.length} open tasks. Moving a few to Later will make the rest easier to start.`;
+  if (!info.flex && info.phase === 'work' && info.we - info.m <= 45 && info.we - info.m > 0) return 'Your work day ends soon. Note where you stopped so tomorrow starts easy.';
+  return '';
+}
+
+/* ---------- Hero ---------- */
+const AX = 500, AY = 198, RX = 440, RY = 170;
+const P = t => { const th = Math.PI * (1 - t); return [AX + RX * Math.cos(th), AY - RY * Math.sin(th)]; };
+const clamp01 = v => Math.max(0, Math.min(1, v));
+function seg(a, b) {
+  a = clamp01(a); b = clamp01(b);
+  if (b - a < 0.002) return '';
+  const [x1, y1] = P(a), [x2, y2] = P(b);
+  return `M${x1.toFixed(1)} ${y1.toFixed(1)} A${RX} ${RY} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+}
+const pathsFor = (list, upTo = 1, extra = '') => list.map(s => {
+  const d = seg(s.a, Math.min(s.b, upTo));
+  return d ? `<path class="${s.cls}${extra}" d="${d}"/>` : '';
+}).join('');
+
+function drawArc(info, animate) {
+  let start, end;
+  if (info.flex) { start = info.ds; end = Math.max(info.de, start + 120); }
+  else { start = info.workday ? info.ws - 60 : 7 * 60; end = Math.max(info.fu, start + 120); }
+  const T = m => (m - start) / (end - start);
+  const g = { now: T(info.m), night: info.phase === 'night', segs: [] };
+  const dim = [];
+  const tickW = $('#tickW'), tickF = $('#tickF'), lblW = $('#lblW'), lblF = $('#lblF');
+  const clampX = x => Math.max(90, Math.min(850, x));
+  tickW.style.display = tickF.style.display = 'none';
+  lblF.style.display = '';
+
+  if (info.flex) {
+    // The whole day is open; logged work and family blocks colour it in.
+    dim.push({ a: 0, b: 1, cls: 'pre' });
+    const base = midnight(), now = Date.now();
+    state.sessions.forEach(x => {
+      const a = Math.max(x.start, base), b = Math.min(x.end || now, base + 86400000);
+      if (b > a) g.segs.push({ a: T((a - base) / 60000), b: T((b - base) / 60000), cls: x.mode === 'work' ? 'w' : 'f' });
+    });
+    lblW.setAttribute('x', 90); lblW.textContent = fmtClock(info.ds);
+    lblF.setAttribute('x', 905); lblF.textContent = fmtClock(info.de);
+  } else if (info.workday) {
+    const tw0 = T(info.ws), tw1 = T(info.we);
+    dim.push({ a: 0, b: tw0, cls: 'pre' }, { a: tw0, b: tw1, cls: 'w dim' }, { a: tw1, b: 1, cls: 'f dim' });
+    g.segs.push({ a: tw0, b: tw1, cls: 'w' }, { a: tw1, b: 1, cls: 'f' });
+    const [xw, yw] = P(tw0), [xf, yf] = P(tw1);
+    tickW.setAttribute('cx', xw); tickW.setAttribute('cy', yw); tickW.style.display = '';
+    tickF.setAttribute('cx', xf); tickF.setAttribute('cy', yf); tickF.style.display = '';
+    lblW.setAttribute('x', clampX(xw)); lblW.textContent = `Work ${fmtClock(info.ws)}`;
+    lblF.setAttribute('x', clampX(xf)); lblF.textContent = `Family ${fmtClock(info.we)}`;
+  } else {
+    dim.push({ a: 0, b: 1, cls: 'f dim' });
+    g.segs.push({ a: 0, b: 1, cls: 'f' });
+    lblW.setAttribute('x', 90); lblW.textContent = 'Day off';
+    lblF.style.display = 'none';
+  }
+  $('#dimG').innerHTML = pathsFor(dim);
+
+  const target = g.night ? (g.now > 0.5 ? 1 : 0) : clamp01(g.now);
+  if (animate && !reduceMotion && !g.night) {
+    const t0 = performance.now(), dur = 1500;
+    const step = now => {
+      const p = Math.min(1, (now - t0) / dur);
+      paintArc(g, target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    paintArc(g, 0);
+    requestAnimationFrame(step);
+  } else paintArc(g, target);
+}
+function paintArc(g, tt) {
+  $('#litG').innerHTML = pathsFor(g.segs, tt, ' lit');
+  const sun = $('#sun'), moon = $('#moon'), drop = $('#drop');
+  if (g.night) {
+    sun.style.display = 'none'; moon.style.display = ''; drop.style.display = 'none';
+  } else {
+    const [x, y] = P(tt);
+    sun.style.display = ''; moon.style.display = 'none'; drop.style.display = '';
+    sun.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    drop.setAttribute('x1', x); drop.setAttribute('x2', x);
+    drop.setAttribute('y1', Math.min(AY, y + 22)); drop.setAttribute('y2', AY);
+  }
+}
+function renderHero(animate) {
+  const now = new Date(), info = dayInfo(now), s = state.settings;
+  const h = now.getHours();
+  const part = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  $('#greeting').textContent = s.name ? `${part}, ${s.name}.` : `${part}.`;
+  const date = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' });
+  let status;
+  if (info.flex) {
+    const mode = currentMode(), cur = curSession(), budget = +s.workBudget || 0, tot = totals();
+    if (info.phase === 'night' && mode !== 'work') status = 'Time to rest. Your list will keep until tomorrow.';
+    else if (mode === 'work') {
+      const left = budget * 60 - tot.work;
+      status = `Working since ${fmtClock(minsOf(cur.start))}.` +
+        (budget && info.workday ? (left > 0 ? ` ${fmtDur(left)} left in today’s work budget.` : ` You’re ${fmtDur(-left)} past today’s work budget.`) : '');
+    }
+    else if (mode === 'family') status = `Family time since ${fmtClock(minsOf(cur.start))}.${info.workday ? '' : ' It’s your day off.'}`;
+    else status = info.workday ? 'Switch between Working and Family time as your day moves. The arc fills in as you go.' : 'It’s your day off. Enjoy the people around you.';
+
+    $$('#nowSwitch button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+    $('#balWork').textContent = fmtDur(tot.work);
+    $('#balFam').textContent = fmtDur(tot.family);
+    const showBudget = budget > 0 && info.workday;
+    $('#balBudget').textContent = showBudget ? ` of ${fmtDur(budget * 60)}` : '';
+    const bar = $('#budgetBar');
+    bar.hidden = !showBudget;
+    if (showBudget) {
+      bar.classList.toggle('over', tot.work > budget * 60);
+      $('#budgetFill').style.width = Math.min(100, tot.work / (budget * 60) * 100).toFixed(1) + '%';
+    }
+  } else {
+    switch (info.phase) {
+      case 'morning': status = `Work starts at ${fmtClock(info.ws)}. Pick today’s three while it’s quiet.`; break;
+      case 'work': status = `${fmtDur(info.we - info.m)} of work left. Family time starts at ${fmtClock(info.we)}.`; break;
+      case 'evening': status = info.workday ? `Work’s done for today. Family time until ${fmtClock(info.fu)}.` : 'No work today.'; break;
+      case 'weekend': status = 'No work today. Enjoy the people around you.'; break;
+      default: status = info.m < 5 * 60 ? 'It’s late. Rest now; your list will keep.' : 'Time to wind down. Tomorrow’s list will keep.';
+    }
+  }
+  $('#nowBlock').hidden = !info.flex;
+  $('#heroStatus').textContent = `${date}. ${status}`;
+  $('#heroInsight').textContent = insight();
+  $('#hero').dataset.phase = info.phase;
+  drawArc(info, animate);
+}
+
+/* ---------- Task rows ---------- */
+function taskRow(t, opts = {}) {
+  const today = dk();
+  let due = '';
+  if (t.due && !t.done) {
+    const tm = new Date(today + 'T00:00'); tm.setDate(tm.getDate() + 1);
+    if (t.due < today) due = `<span class="badge overdue">Overdue, ${esc(shortDate(t.due))}</span>`;
+    else if (t.due === today) due = '<span class="badge due-today">Today</span>';
+    else if (t.due === dk(tm)) due = '<span class="badge">Tomorrow</span>';
+    else due = `<span class="badge">${esc(shortDate(t.due))}</span>`;
+  }
+  const pri = t.pri === 'must' && !t.done ? '<span class="badge must">Must</span>' : '';
+  const focused = t.focusSec >= 1 ? `<span class="badge focused" title="Time spent in focus blocks on this task">Focused ${fmtSecs(t.focusSec)}</span>` : '';
+  const cat = opts.three ? `<span class="badge cat">${t.cat === 'work' ? 'Work' : 'Personal'}</span>` : '';
+  const pin = !opts.three && t.top && !t.done ? '<span class="badge pinned">★ Today’s three</span>' : '';
+  let actions = '';
+  if (!t.done) {
+    actions += `<button type="button" class="act pin${t.top ? ' on' : ''}" data-act="pin" aria-pressed="${t.top}" aria-label="${t.top ? 'Unpin from' : 'Pin to'} today’s three" title="${t.top ? 'Unpin from' : 'Pin to'} today’s three">${ICON.star}</button>`;
+    actions += `<button type="button" class="act" data-act="focus" aria-label="Focus on this task" title="Focus on this">${ICON.target}</button>`;
+    if (!opts.three) {
+      actions += t.pri === 'later'
+        ? `<button type="button" class="act" data-act="later" aria-label="Move back to the list" title="Move back to the list">${ICON.back}</button>`
+        : `<button type="button" class="act" data-act="later" aria-label="Move to Later" title="Move to Later">${ICON.later}</button>`;
+    }
+  }
+  if (!opts.three) actions += `<button type="button" class="act" data-act="delete" aria-label="Delete task" title="Delete">${ICON.trash}</button>`;
+  const cls = ['task'];
+  if (t.done) cls.push('is-done');
+  if (t.id === lastAddedId) cls.push('fresh');
+  return `<li class="${cls.join(' ')}" data-id="${t.id}" data-cat="${t.cat}">
+    <button type="button" class="check" role="checkbox" aria-checked="${t.done}" aria-label="${t.done ? 'Mark as not done' : 'Mark as done'}">${ICON.check}</button>
+    <div class="task-body"><span class="task-title"${t.done ? '' : ' tabindex="0" title="Click to edit"'}>${esc(t.title)}</span><span class="task-meta">${pin}${cat}${pri}${due}${focused}</span></div>
+    <div class="task-actions">${actions}</div>
+  </li>`;
+}
+function byPriority(a, b) {
+  return (PRI[a.pri] - PRI[b.pri])
+    || ((a.due || '9999') < (b.due || '9999') ? -1 : (a.due || '9999') > (b.due || '9999') ? 1 : 0)
+    || (b.top - a.top)
+    || (a.createdAt - b.createdAt);
+}
+
+/* ---------- Render ---------- */
+let lastAddedId = null;
+function renderThree() {
+  const three = threeTasks();
+  const done = three.filter(t => t.done).length;
+  $('#threeCount').textContent = three.length ? `${done} of ${three.length} done` : '';
+  let html = three.map(t => taskRow(t, { three: true })).join('');
+  const hasTasks = state.tasks.some(t => !t.done);
+  for (let i = three.length; i < 3; i++) {
+    const msg = i === three.length
+      ? (hasTasks ? 'Star a task below to make it one of today’s three.' : 'Add a few tasks, then star the ones that matter most today.')
+      : 'Open slot';
+    html += `<li class="three-slot">${msg}</li>`;
+  }
+  $('#threeList').innerHTML = html;
+}
+function renderColumns() {
+  const today = dk();
+  const resting = workResting();
+  ['work', 'personal'].forEach(cat => {
+    const col = $(`.col[data-cat="${cat}"]`);
+    const all = state.tasks.filter(t => t.cat === cat);
+    const open = all.filter(t => !t.done && t.pri !== 'later').sort(byPriority);
+    const later = all.filter(t => !t.done && t.pri === 'later').sort((a, b) => a.createdAt - b.createdAt);
+    const done = all.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+    const doneToday = done.filter(t => t.doneAt && dk(new Date(t.doneAt)) === today).length;
+    const bits = [];
+    if (open.length) bits.push(`${open.length} open`);
+    if (doneToday) bits.push(`${doneToday} done today`);
+    $('.col-head .count', col).textContent = bits.join(', ');
+
+    $('.list-open', col).innerHTML = open.length ? open.map(t => taskRow(t)).join('') : `<li class="empty">${EMPTY[cat]}</li>`;
+    const fl = $('.fold-later', col), fd = $('.fold-done', col);
+    fl.hidden = !later.length; $('.n', fl).textContent = later.length ? `(${later.length})` : '';
+    $('ul', fl).innerHTML = later.map(t => taskRow(t)).join('');
+    fd.hidden = !done.length; $('.n', fd).textContent = done.length ? `(${done.length})` : '';
+    $('ul', fd).innerHTML = done.map(t => taskRow(t)).join('');
+
+    if (cat === 'work') {
+      const note = $('.resting-note', col), peek = $('.peek-note', col);
+      col.classList.toggle('resting', resting);
+      note.hidden = !resting;
+      peek.hidden = !(restingTime() && !resting);
+      $('span', peek).textContent = isFlex() && currentMode() === 'family' ? 'Work is open during family time.' : 'Work is open after hours.';
+      if (resting) {
+        const waiting = open.length + later.length;
+        note.innerHTML = `<p>${esc(restingMessage(waiting))}</p>
+          <button type="button" class="link-btn" data-peek style="padding-left:0">Show work tasks anyway</button>`;
+      }
+    }
+  });
+  $('#columns').dataset.view = state.view;
+  lastAddedId = null;
+}
+function streak() {
+  let n = 0; const d = new Date();
+  if (!((state.log[dk(d)] || {}).done > 0)) d.setDate(d.getDate() - 1);
+  while ((state.log[dk(d)] || {}).done > 0) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
+function renderMomentum() {
+  const L = state.log[dk()] || {};
+  $('#statDone').textContent = L.done || 0;
+  $('#statFocus').textContent = fmtDur(L.focus || 0);
+  const st = streak();
+  $('#statStreak').textContent = st;
+  $('#statStreakLbl').textContent = 'day streak';
+  const badge = $('#streakBadge');
+  badge.hidden = st < 2;
+  badge.textContent = `${st}-day streak`;
+  let html = '', total = 0;
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const n = (state.log[dk(d)] || {}).done || 0; total += n;
+    const lvl = n === 0 ? 0 : n < 3 ? 1 : n < 6 ? 2 : 3;
+    const label = d.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+    const tt = isFlex() ? totals(dk(d)) : null;
+    const split = tt && (tt.work || tt.family) ? `, work ${fmtDur(tt.work)}, family ${fmtDur(tt.family)}` : '';
+    html += `<span class="cell l${lvl}${i === 0 ? ' today' : ''}" title="${esc(label)}: ${n} done${split}"></span>`;
+  }
+  const heat = $('#heat');
+  heat.innerHTML = html;
+  heat.setAttribute('aria-label', `${total} tasks completed in the last 14 days`);
+}
+function renderTip() {
+  const [title, body] = TIPS[((state.tipIndex % TIPS.length) + TIPS.length) % TIPS.length];
+  $('#tipTitle').textContent = title;
+  $('#tipBody').textContent = body;
+}
+function renderStorageNote() { $('#storageNote').hidden = storageOK; }
+function syncSegs() {
+  $$('.seg[data-key]').forEach(segEl => {
+    const key = segEl.dataset.key;
+    const val = key === 'timerMode' ? state.timer.mode : state[key];
+    $$('button', segEl).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.val === val)));
+  });
+}
+function renderAll(animateArc) {
+  if (document.activeElement && document.activeElement.classList.contains('edit-input')) return;
+  renderHero(animateArc);
+  renderThree();
+  renderColumns();
+  renderMomentum();
+  renderTimer();
+  renderStorageNote();
+  $('#kbdHint').innerHTML = isFlex()
+    ? 'Press <kbd>N</kbd> to add a task, <kbd>W</kbd> for Working, <kbd>F</kbd> for Family time.'
+    : 'Press <kbd>N</kbd> to add a task from anywhere.';
+}
+
+/* ---------- Actions ---------- */
+let toastTimer;
+function toast(msg, action) {
+  const el = $('#toast');
+  el.innerHTML = '';
+  const span = document.createElement('span'); span.textContent = msg; el.appendChild(span);
+  if (action) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'toast-btn'; b.textContent = action.label;
+    b.addEventListener('click', () => { action.fn(); el.classList.remove('show'); });
+    el.appendChild(b);
+  }
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), action ? 5500 : 3400);
+}
+function toggleDone(id, btn) {
+  const t = find(id); if (!t) return;
+  const row = btn.closest('.task');
+  if (row && row.classList.contains('just-done')) return;
+  const L = logFor(dk());
+  if (!t.done) {
+    if (row) row.classList.add('just-done');
+    btn.setAttribute('aria-checked', 'true');
+    setTimeout(() => {
+      let stopped = false;
+      if (state.focusTaskId === id) {
+        const tm = state.timer;
+        stopped = focusType() && (tm.running || timerRemaining() < timerTotal());
+        creditFocus();
+        if (stopped) {
+          clearInterval(tickHandle);
+          tm.running = false; tm.endAt = null; tm.remaining = timerTotal(); tm.mark = timerTotal();
+        }
+        state.focusTaskId = null;
+      }
+      t.done = true; t.doneAt = Date.now();
+      L.done++; L[t.cat] = (L[t.cat] || 0) + 1;
+      save(); renderAll();
+      const celebrated = maybeCelebrate();
+      if (stopped) toast(`Done. Timer stopped, with ${fmtSecs(t.focusSec || 0)} of focus logged on this task.`);
+      else if (!celebrated) toast(pick(t.cat === 'work' ? CHEERS_WORK : CHEERS_HOME));
+    }, reduceMotion ? 0 : 420);
+  } else {
+    if (t.doneAt && dk(new Date(t.doneAt)) === dk()) { L.done = Math.max(0, L.done - 1); L[t.cat] = Math.max(0, (L[t.cat] || 0) - 1); }
+    t.done = false; t.doneAt = null;
+    save(); renderAll();
+  }
+}
+function maybeCelebrate() {
+  const today = dk(), three = threeTasks();
+  if (three.length === 3 && three.every(t => t.done) && state.celebrated !== today) {
+    state.celebrated = today; save();
+    burst();
+    toast('All three done. Anything else today is a bonus.');
+    return true;
+  }
+  return false;
+}
+function burst() {
+  if (reduceMotion) return;
+  const host = $('#threePanel');
+  const w = host.clientWidth;
+  const colors = ['var(--sun)', 'var(--work)', 'var(--home)'];
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('span');
+    s.className = 'burst';
+    const a = Math.random() * Math.PI * 2, d = 70 + Math.random() * 140;
+    s.style.setProperty('--x', (w / 2) + 'px');
+    s.style.setProperty('--y', '48px');
+    s.style.setProperty('--dx', (Math.cos(a) * d * 1.6).toFixed(0) + 'px');
+    s.style.setProperty('--dy', (Math.sin(a) * d * .7).toFixed(0) + 'px');
+    s.style.background = colors[i % 3];
+    host.appendChild(s);
+    setTimeout(() => s.remove(), 1100);
+  }
+}
+function handleAct(act, id) {
+  const t = find(id); if (!t) return;
+  if (act === 'pin') {
+    if (!t.top && threeTasks().length >= 3) { toast('Today’s three is full. Unpin one before adding another.'); return; }
+    t.top = !t.top; t.pinnedAt = Date.now();
+    if (t.top && t.pri === 'later') t.pri = 'should';
+    save(); renderAll();
+    if (t.top && threeTasks().length === 3) toast('That’s your three. Finish these and the day is a win.');
+  } else if (act === 'focus') {
+    if (state.focusTaskId !== id) creditFocus();
+    state.focusTaskId = id; save(); renderAll();
+    toast('Focus set. Press Start when you’re ready.');
+    if (window.innerWidth <= 1000) $('#focusPanel').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+  } else if (act === 'later') {
+    if (t.pri === 'later') { t.pri = 'should'; save(); renderAll(); toast('Moved back to your list.'); }
+    else { t.pri = 'later'; t.top = false; save(); renderAll(); toast('Moved to Later. Choosing what not to do now is still a choice.'); }
+  } else if (act === 'delete') {
+    if (state.focusTaskId === id) creditFocus();
+    const idx = state.tasks.indexOf(t);
+    state.tasks.splice(idx, 1);
+    if (state.focusTaskId === id) state.focusTaskId = null;
+    save(); renderAll();
+    toast('Task deleted.', { label: 'Undo', fn: () => { state.tasks.splice(Math.min(idx, state.tasks.length), 0, t); save(); renderAll(); } });
+  }
+}
+function startEdit(el) {
+  const row = el.closest('[data-id]'); if (!row) return;
+  const t = find(row.dataset.id); if (!t || t.done) return;
+  const input = document.createElement('input');
+  input.className = 'edit-input'; input.value = t.title; input.setAttribute('aria-label', 'Edit task');
+  el.replaceWith(input); input.focus(); input.select();
+  let finished = false;
+  const finish = commit => {
+    if (finished) return; finished = true;
+    if (commit) { const p = parseQuick(input.value, t.cat, t.pri); if (p.title) { t.title = p.title; t.cat = p.cat; t.pri = p.pri; } save(); }
+    input.blur();
+    renderAll();
+  };
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+
+/* ---------- Focus timer ---------- */
+const C = 2 * Math.PI * 86;
+let tickHandle = null, actx = null;
+if (!MODES[state.timer.mode]) state.timer.mode = 'focus';
+const timerTotal = () => MODES[state.timer.mode].min * 60;
+const focusType = (m = state.timer.mode) => m !== 'short';
+const fmtSecs = s => s < 60 ? `${Math.max(1, Math.round(s))}s` : fmtDur(s / 60);
+// Adds focus time since the last checkpoint to today's total and to the task in focus.
+function creditFocus() {
+  const tm = state.timer;
+  if (!focusType()) return 0;
+  const rem = timerRemaining(), total = timerTotal();
+  const mark = tm.mark == null ? total : Math.min(tm.mark, total);
+  const secs = Math.max(0, mark - rem);
+  tm.mark = rem;
+  if (!secs) return 0;
+  const L = logFor(dk()); L.focus = (L.focus || 0) + secs / 60;
+  const t = find(state.focusTaskId);
+  if (t) t.focusSec = (t.focusSec || 0) + secs;
+  return secs;
+}
+const timerRemaining = () => {
+  const tm = state.timer;
+  return tm.running ? Math.max(0, Math.round((tm.endAt - Date.now()) / 1000)) : Math.min(tm.remaining, timerTotal());
+};
+function ensureAudio() {
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+  } catch (e) { /* audio unavailable */ }
+}
+function chime() {
+  if (!actx) return;
+  try {
+    const t0 = actx.currentTime;
+    [659.25, 880, 1318.5].forEach((f, i) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      const st = t0 + i * 0.2;
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.16, st + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st + 1.4);
+      o.connect(g); g.connect(actx.destination);
+      o.start(st); o.stop(st + 1.5);
+    });
+  } catch (e) { /* ignore */ }
+}
+function loop() {
+  clearInterval(tickHandle);
+  tickHandle = setInterval(() => {
+    if (!state.timer.running) { clearInterval(tickHandle); return; }
+    if (timerRemaining() <= 0) finishTimer(); else renderTimer();
+  }, 250);
+}
+function startTimer() {
+  ensureAudio();
+  const tm = state.timer;
+  const ft = find(state.focusTaskId);
+  if (isFlex() && tm.mode !== 'short' && ft && !ft.done && ft.cat === 'work' && currentMode() !== 'work') {
+    switchMode('work', true);
+    toast('Switched to Working for this focus block.');
+  }
+  if (tm.remaining <= 0) tm.remaining = timerTotal();
+  if (tm.mark == null) tm.mark = Math.min(tm.remaining, timerTotal());
+  tm.endAt = Date.now() + tm.remaining * 1000; tm.running = true;
+  save(); loop(); renderTimer();
+}
+function pauseTimer() {
+  const tm = state.timer;
+  tm.remaining = timerRemaining(); tm.running = false; tm.endAt = null;
+  save(); renderTimer();
+}
+function resetTimer(credit = true) {
+  const tm = state.timer;
+  const secs = credit ? creditFocus() : 0;
+  clearInterval(tickHandle);
+  tm.running = false; tm.endAt = null; tm.remaining = timerTotal(); tm.mark = timerTotal();
+  save();
+  if (secs) renderAll(); else renderTimer();
+}
+function finishTimer() {
+  clearInterval(tickHandle);
+  const was = state.timer.mode;
+  chime();
+  if (focusType(was)) {
+    creditFocus();
+    const ft = find(state.focusTaskId);
+    toast(ft ? `Focus block done on “${ft.title}” (${fmtSecs(ft.focusSec || 0)} on it so far). Stand up, stretch, look away from the screen.` : 'Focus block done. Stand up, stretch, look away from the screen.');
+    state.timer.lastFocus = was;
+    state.timer.mode = 'short';
+  } else {
+    toast('Break’s over. Pick up where you left off when you’re ready.');
+    state.timer.mode = MODES[state.timer.lastFocus] && state.timer.lastFocus !== 'short' ? state.timer.lastFocus : 'focus';
+  }
+  state.timer.running = false; state.timer.endAt = null; state.timer.remaining = timerTotal(); state.timer.mark = timerTotal();
+  save(); syncSegs(); renderAll();
+}
+function renderTimer() {
+  const rem = timerRemaining(), total = timerTotal(), tm = state.timer;
+  const txt = `${z(Math.floor(rem / 60))}:${z(rem % 60)}`;
+  $('#timeText').textContent = txt;
+  const ring = $('#ring');
+  ring.style.strokeDasharray = C.toFixed(2);
+  ring.style.strokeDashoffset = (C * (1 - rem / total)).toFixed(2);
+  $('#timerBtn').textContent = tm.running ? 'Pause' : (rem < total ? 'Resume' : 'Start');
+  $('#focusPanel').dataset.mode = tm.mode;
+  document.title = tm.running ? `${txt} ${MODES[tm.mode].label} – Daylight` : 'Daylight';
+  const ft = find(state.focusTaskId);
+  const fo = $('#focusOn');
+  let html;
+  if (tm.mode === 'short') html = 'Step away from the screen for a few minutes.';
+  else if (ft && !ft.done) {
+    const pending = Math.max(0, (tm.mark == null ? total : Math.min(tm.mark, total)) - rem);
+    const sofar = (ft.focusSec || 0) + pending;
+    const mins = Math.floor(sofar / 60);
+    html = `On: <strong>${esc(ft.title)}</strong>${mins ? ` (${fmtDur(mins)} so far)` : ''} <button type="button" class="link-btn" data-clear-focus>Clear</button>`;
+  }
+  else html = 'Choose a task with the target button, or just start.';
+  if (fo.dataset.html !== html) { fo.innerHTML = html; fo.dataset.html = html; }
+}
+
+/* ---------- Settings, dump, data ---------- */
+function applyTheme() {
+  const th = state.settings.theme;
+  if (th === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', th);
+}
+const effectiveDark = () => state.settings.theme === 'dark' || (state.settings.theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+function openSettings(first) {
+  const s = state.settings;
+  $('#sName').value = s.name;
+  $('#sStart').value = s.workStart; $('#sEnd').value = s.workEnd; $('#sFam').value = s.familyUntil;
+  $('#sDayStart').value = s.dayStart; $('#sDayEnd').value = s.dayEnd; $('#sBudget').value = s.workBudget;
+  $$('input[name="sMode"]').forEach(r => { r.checked = r.value === s.mode; });
+  syncModeFields();
+  $('#sDays').innerHTML = DAYS.map(([v, l]) => `<label class="day"><input type="checkbox" value="${v}"${s.workDays.includes(v) ? ' checked' : ''}><span>${l}</span></label>`).join('');
+  $('#sTheme').value = s.theme;
+  $('#setError').textContent = '';
+  $('#setTitle').textContent = first ? 'Set up your day' : 'Settings';
+  $('#saveSettings').textContent = first ? 'Start my day' : 'Save settings';
+  $('#settingsDlg').showModal();
+  if (first) $('#sName').focus();
+}
+function syncModeFields() {
+  const flex = ($('input[name="sMode"]:checked') || {}).value === 'flex';
+  $('#fixedFields').hidden = flex;
+  $('#flexFields').hidden = !flex;
+}
+$$('input[name="sMode"]').forEach(r => r.addEventListener('change', syncModeFields));
+$('#settingsForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const mode = ($('input[name="sMode"]:checked') || {}).value || 'fixed';
+  const st = $('#sStart').value || '09:00', en = $('#sEnd').value || '18:30', fa = $('#sFam').value || '22:00';
+  const ds = $('#sDayStart').value || '07:00', de = $('#sDayEnd').value || '22:00';
+  const bud = $('#sBudget').value === '' ? 0 : parseFloat($('#sBudget').value);
+  const err = $('#setError');
+  if (mode === 'fixed') {
+    if (toMin(en) <= toMin(st)) { err.textContent = `“Work stops” (${fmtClock(toMin(en))}) needs to be later than “Work starts” (${fmtClock(toMin(st))}).`; return; }
+    if (toMin(fa) <= toMin(en)) { err.textContent = `“Family time until” (${fmtClock(toMin(fa))}) is earlier than “Work stops” (${fmtClock(toMin(en))}), so there’s no family time left after work. Pick a later time, or choose “On and off through the day” if work and family time mix.`; return; }
+  } else {
+    if (toMin(de) <= toMin(ds)) { err.textContent = 'Set “Day ends” to a time after “Day starts”.'; return; }
+    if (isNaN(bud) || bud < 0 || bud > 16) { err.textContent = 'Set work hours per day between 0 and 16. Use 0 for no daily limit.'; return; }
+  }
+  const s = state.settings;
+  if (s.mode === 'flex' && mode === 'fixed') stopSession();
+  s.mode = mode;
+  s.name = $('#sName').value.trim().slice(0, 40);
+  s.workStart = st; s.workEnd = en; s.familyUntil = fa;
+  s.dayStart = ds; s.dayEnd = de; s.workBudget = isNaN(bud) ? 0 : bud;
+  s.workDays = $$('#sDays input:checked').map(i => +i.value);
+  s.theme = $('#sTheme').value;
+  state.setupDone = true;
+  applyTheme(); save();
+  $('#settingsDlg').close();
+  renderAll(true);
+  toast('Settings saved.');
+});
+$('#settingsDlg').addEventListener('close', () => { if (!state.setupDone) { state.setupDone = true; save(); } });
+$('#settingsBtn').addEventListener('click', () => openSettings(false));
+$('#themeBtn').addEventListener('click', () => { state.settings.theme = effectiveDark() ? 'light' : 'dark'; applyTheme(); save(); });
+
+$('#exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `daylight-backup-${dk()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('Backup exported.');
+});
+$('#importBtn').addEventListener('click', () => $('#importFile').click());
+$('#importFile').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const data = JSON.parse(r.result);
+      if (!data || !Array.isArray(data.tasks)) throw new Error('bad file');
+      if (!confirm('Replace everything in Daylight with this backup?')) return;
+      Object.keys(state).forEach(k => delete state[k]);
+      Object.assign(state, clone(DEFAULTS), data);
+      state.settings = Object.assign({}, DEFAULTS.settings, data.settings || {});
+      state.timer = Object.assign({}, DEFAULTS.timer, data.timer || {}, { running: false, endAt: null });
+      state.timer.remaining = timerTotal();
+      state.setupDone = true;
+      save(); applyTheme(); syncSegs();
+      $('#settingsDlg').close();
+      renderAll(true);
+      toast('Backup imported.');
+    } catch (err) {
+      toast('That file isn’t a Daylight backup. Choose a .json file exported from Settings.');
+    } finally { e.target.value = ''; }
+  };
+  r.readAsText(f);
+});
+$('#resetBtn').addEventListener('click', () => {
+  if (!confirm('Delete all tasks, history and settings from this browser? This can’t be undone.')) return;
+  try { localStorage.removeItem(KEY); } catch (err) { /* ignore */ }
+  location.reload();
+});
+
+const dumpLines = () => $('#dumpText').value.split('\n').map(l => l.trim()).filter(Boolean);
+$('#dumpBtn').addEventListener('click', () => { $('#dumpDlg').showModal(); $('#dumpText').focus(); });
+$('#dumpText').addEventListener('input', () => {
+  const n = dumpLines().length;
+  $('#dumpAdd').disabled = n === 0;
+  $('#dumpAdd').textContent = n ? `Add ${n} ${plural(n, 'task')}` : 'Add tasks';
+});
+$('#dumpForm').addEventListener('submit', e => {
+  e.preventDefault();
+  let n = 0;
+  dumpLines().forEach(l => { const p = parseQuick(l, state.dumpCat, 'should'); if (p.title) { state.tasks.push(newTask(p)); n++; } });
+  $('#dumpDlg').close();
+  $('#dumpText').value = ''; $('#dumpAdd').disabled = true; $('#dumpAdd').textContent = 'Add tasks';
+  save(); renderAll();
+  if (n) toast(`${n} ${plural(n, 'task')} added. Now star the three that matter most today.`);
+});
+$$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+$('#addForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const input = $('#addInput');
+  const raw = input.value.trim(); if (!raw) { input.focus(); return; }
+  const p = parseQuick(raw, state.addCat, state.addPri);
+  if (!p.title) return;
+  const t = newTask(p, $('#addDue').value || '');
+  state.tasks.push(t);
+  lastAddedId = t.id;
+  input.value = ''; $('#addDue').value = '';
+  save(); renderAll();
+  input.focus();
+  if (t.cat === 'work' && workResting()) toast(isFlex() ? 'Added to Work. It’s tucked away until you switch to Working.' : `Added to Work. It’ll be waiting for you ${nextWorkLabel()}.`);
+  else if (t.pri === 'later') toast('Added to Later.');
+});
+
+$('#timerBtn').addEventListener('click', () => { state.timer.running ? pauseTimer() : startTimer(); });
+$('#timerReset').addEventListener('click', () => resetTimer(true));
+$('#nextTip').addEventListener('click', () => { state.tipIndex++; save(); renderTip(); });
+
+/* ---------- Delegated events ---------- */
+document.addEventListener('click', e => {
+  const nowBtn = e.target.closest('#nowSwitch [data-mode]');
+  if (nowBtn) { switchMode(nowBtn.dataset.mode); return; }
+  const segBtn = e.target.closest('.seg[data-key] button');
+  if (segBtn) {
+    const key = segBtn.parentElement.dataset.key, val = segBtn.dataset.val;
+    if (key === 'timerMode') {
+      if (state.timer.mode !== val) {
+        const secs = creditFocus();
+        state.timer.mode = val;
+        resetTimer(false);
+        if (secs) renderAll();
+      }
+    } else { state[key] = val; save(); }
+    syncSegs();
+    if (key === 'view') renderColumns();
+    return;
+  }
+  const check = e.target.closest('.check');
+  if (check) { toggleDone(check.closest('[data-id]').dataset.id, check); return; }
+  const act = e.target.closest('[data-act]');
+  if (act) { handleAct(act.dataset.act, act.closest('[data-id]').dataset.id); return; }
+  if (e.target.closest('[data-peek]')) { state.peekWork = dk(); save(); renderColumns(); return; }
+  if (e.target.closest('[data-unpeek]')) { state.peekWork = null; save(); renderColumns(); return; }
+  if (e.target.closest('[data-clear-focus]')) { creditFocus(); state.focusTaskId = null; save(); renderAll(); return; }
+  const clr = e.target.closest('[data-clear]');
+  if (clr) {
+    const cat = clr.dataset.clear;
+    state.tasks = state.tasks.filter(t => !(t.done && t.cat === cat));
+    if (state.focusTaskId && !find(state.focusTaskId)) state.focusTaskId = null;
+    save(); renderAll();
+    toast('Cleared. Your streak and history stay in Momentum.');
+    return;
+  }
+  const title = e.target.closest('.task-title');
+  if (title && !title.closest('.is-done')) startEdit(title);
+});
+document.addEventListener('keydown', e => {
+  if (e.target.classList && e.target.classList.contains('task-title') && e.key === 'Enter') { e.preventDefault(); startEdit(e.target); return; }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable]')) return;
+  if (document.querySelector('dialog[open]')) return;
+  if (e.key === 'n' || e.key === 'N' || e.key === '/') { e.preventDefault(); $('#addInput').focus(); }
+  if (isFlex() && (e.key === 'w' || e.key === 'W')) { e.preventDefault(); switchMode('work'); }
+  if (isFlex() && (e.key === 'f' || e.key === 'F')) { e.preventDefault(); switchMode('family'); }
+});
+
+/* ---------- Boot ---------- */
+let currentDay = dk(), lastResting = workResting();
+function checkDay() {
+  if (dk() !== currentDay) { currentDay = dk(); closeStale(); normalize(); save(); renderAll(); }
+}
+applyTheme();
+closeStale();
+autoCloseFamily();
+normalize();
+pruneLog();
+state.tipIndex = (state.tipIndex || 0) + 1;
+renderTip();
+syncSegs();
+renderAll(true);
+if (state.timer.running) { if (timerRemaining() <= 0) finishTimer(); else loop(); }
+save();
+if (!state.setupDone) openSettings(true);
+
+setInterval(() => {
+  checkDay();
+  if (autoCloseFamily()) renderAll();
+  budgetCheck();
+  renderHero(false);
+  const r = workResting();
+  if (r !== lastResting) { lastResting = r; renderColumns(); renderThree(); }
+}, 30000);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) { checkDay(); renderAll(); }
+});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => renderHero(false));
+})();
+</script>
+</body>
+</html>
