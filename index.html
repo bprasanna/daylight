@@ -220,6 +220,13 @@ h2{ font-family:var(--serif); font-weight:400; font-size:1.32rem; margin:0; line
 .link-btn{ border:0; background:none; color:var(--muted); font-size:.85rem; font-weight:600; text-decoration:underline; text-underline-offset:3px; padding:4px 6px; }
 .link-btn:hover{ color:var(--ink); }
 .link-btn.danger{ color:var(--danger); }
+.fold-actions{ gap:4px; flex-wrap:wrap; }
+.badge.done-at{ background:transparent; font-weight:500; }
+.btn.danger{ background:var(--danger); border-color:var(--danger); color:#fff; }
+.csv-row{ display:flex; gap:8px; flex-wrap:wrap; }
+#confirmDlg{ width:min(440px,94vw); }
+#confirmDlg .dlg-foot{ justify-content:flex-end; }
+#confirmDlg .dlg-foot .link-btn{ margin-right:auto; padding-left:0; }
 .resting-note{ background:var(--work-soft); border-radius:14px; padding:14px 16px; font-size:.95rem; margin:6px 0 4px; }
 .resting-note p{ margin:0 0 6px; }
 .peek-note{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:.85rem; color:var(--muted); background:var(--surface-2); border-radius:10px; padding:6px 6px 6px 12px; margin:4px 0; }
@@ -418,14 +425,14 @@ textarea{ min-height:220px; resize:vertical; line-height:1.55; }
           <ul class="tasks list-open"></ul>
           <details class="fold fold-later"><summary>Later <span class="n"></span></summary><ul class="tasks"></ul></details>
           <details class="fold fold-done"><summary>Done <span class="n"></span></summary><ul class="tasks"></ul>
-            <div class="fold-actions"><button type="button" class="link-btn" data-clear="work">Clear done tasks</button></div></details>
+            <div class="fold-actions"><button type="button" class="link-btn" data-csv="work">Export as CSV</button><button type="button" class="link-btn" data-clear="work">Clear done tasks</button></div></details>
         </section>
         <section class="col" data-cat="personal" aria-labelledby="personalTitle">
           <header class="col-head"><span class="dot"></span><h2 id="personalTitle">Personal</h2><span class="count"></span></header>
           <ul class="tasks list-open"></ul>
           <details class="fold fold-later"><summary>Later <span class="n"></span></summary><ul class="tasks"></ul></details>
           <details class="fold fold-done"><summary>Done <span class="n"></span></summary><ul class="tasks"></ul>
-            <div class="fold-actions"><button type="button" class="link-btn" data-clear="personal">Clear done tasks</button></div></details>
+            <div class="fold-actions"><button type="button" class="link-btn" data-csv="personal">Export as CSV</button><button type="button" class="link-btn" data-clear="personal">Clear done tasks</button></div></details>
         </section>
       </div>
     </div>
@@ -514,6 +521,14 @@ textarea{ min-height:220px; resize:vertical; line-height:1.55; }
       <label for="sTheme">Theme</label>
       <select id="sTheme"><option value="auto">Match my device</option><option value="light">Light</option><option value="dark">Dark</option></select>
     </div>
+    <div class="field">
+      <label>Export to a spreadsheet</label>
+      <div class="csv-row">
+        <button type="button" class="btn" id="csvDoneBtn">Export done tasks (CSV)</button>
+        <button type="button" class="btn" id="csvAllBtn">Export all tasks (CSV)</button>
+      </div>
+      <p class="hint" style="margin:2px 0 0">Opens in Excel, Numbers or Google Sheets. Use Export backup below to save everything for re-importing.</p>
+    </div>
     <p class="form-error" id="setError" role="alert"></p>
     <div class="dlg-foot">
       <div class="foot-left">
@@ -546,6 +561,18 @@ textarea{ min-height:220px; resize:vertical; line-height:1.55; }
   </form>
 </dialog>
 
+<dialog id="confirmDlg" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+  <form class="dlg" method="dialog">
+    <h2 id="confirmTitle"></h2>
+    <p class="lead" id="confirmBody"></p>
+    <div class="dlg-foot">
+      <button type="button" class="link-btn" id="confirmExtra" hidden></button>
+      <button type="submit" class="btn" value="cancel" id="confirmCancel">Cancel</button>
+      <button type="submit" class="btn primary" value="ok" id="confirmOk">OK</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
 (() => {
 'use strict';
@@ -564,6 +591,19 @@ const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 
 const plural = (n, word) => n === 1 ? word : word + 's';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const shortDate = s => new Date(s + 'T00:00').toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+// "today, 3:42 PM" / "yesterday, 3:42 PM" / "Mon 13 Oct, 3:42 PM" (year added when it isn't this year)
+function whenDone(ts) {
+  const d = new Date(ts), now = new Date();
+  const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const y = new Date(now); y.setDate(y.getDate() - 1);
+  if (dk(d) === dk(now)) return `today, ${time}`;
+  if (dk(d) === dk(y)) return `yesterday, ${time}`;
+  const opts = { weekday: 'short', day: 'numeric', month: 'short' };
+  if (d.getFullYear() !== now.getFullYear()) opts.year = 'numeric';
+  return `${d.toLocaleDateString([], opts)}, ${time}`;
+}
+const fullStamp = ts => new Date(ts).toLocaleString([], { dateStyle: 'full', timeStyle: 'short' });
+const csvStamp = ts => { if (!ts) return ''; const d = new Date(ts); return `${dk(d)} ${z(d.getHours())}:${z(d.getMinutes())}`; };
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Content ---------- */
@@ -969,6 +1009,7 @@ function taskRow(t, opts = {}) {
   const pri = t.pri === 'must' && !t.done ? '<span class="badge must">Must</span>' : '';
   const focused = t.focusSec >= 1 ? `<span class="badge focused" title="Time spent in focus blocks on this task">Focused ${fmtSecs(t.focusSec)}</span>` : '';
   const cat = opts.three ? `<span class="badge cat">${t.cat === 'work' ? 'Work' : 'Personal'}</span>` : '';
+  const doneAt = t.done && t.doneAt ? `<span class="badge done-at" title="Completed ${esc(fullStamp(t.doneAt))}">Done ${esc(whenDone(t.doneAt))}</span>` : '';
   const pin = opts.three ? ''
     : (t.top && !t.done) ? '<span class="badge pinned">★ Today’s three</span>'
     : (t.done && (t.top || t.wasTop)) ? '<span class="badge pinned" title="This was one of the day’s three">★ Top three</span>' : '';
@@ -988,7 +1029,7 @@ function taskRow(t, opts = {}) {
   if (t.id === lastAddedId) cls.push('fresh');
   return `<li class="${cls.join(' ')}" data-id="${t.id}" data-cat="${t.cat}">
     <button type="button" class="check" role="checkbox" aria-checked="${t.done}" aria-label="${t.done ? 'Mark as not done' : 'Mark as done'}">${ICON.check}</button>
-    <div class="task-body"><span class="task-title"${t.done ? '' : ' tabindex="0" title="Click to edit"'}>${esc(t.title)}</span><span class="task-meta">${pin}${cat}${pri}${due}${focused}</span></div>
+    <div class="task-body"><span class="task-title"${t.done ? '' : ' tabindex="0" title="Click to edit"'}>${esc(t.title)}</span><span class="task-meta">${pin}${cat}${doneAt}${pri}${due}${focused}</span></div>
     <div class="task-actions">${actions}</div>
   </li>`;
 }
@@ -1424,14 +1465,56 @@ $('#settingsDlg').addEventListener('close', () => { if (!state.setupDone) { stat
 $('#settingsBtn').addEventListener('click', () => openSettings(false));
 $('#themeBtn').addEventListener('click', () => { state.settings.theme = effectiveDark() ? 'light' : 'dark'; applyTheme(); save(); });
 
-$('#exportBtn').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+function download(name, text, type) {
+  const blob = new Blob([text], { type });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = `daylight-backup-${dk()}.json`;
+  a.href = URL.createObjectURL(blob); a.download = name;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+const catName = c => c === 'work' ? 'Work' : 'Personal';
+const PRI_NAME = { must: 'Must', should: 'Should', later: 'Later' };
+function csvCell(v) {
+  let s = v == null ? '' : String(v);
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; // stop spreadsheets treating a title as a formula
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+function tasksCsv(list) {
+  const head = ['Task', 'List', 'Priority', 'Status', 'Today’s three', 'Due date', 'Created', 'Completed', 'Focus (minutes)'];
+  const rows = list.map(t => [
+    t.title, catName(t.cat), PRI_NAME[t.pri] || '', t.done ? 'Done' : 'Open',
+    (t.top || t.wasTop) ? 'Yes' : 'No', t.due || '', csvStamp(t.createdAt), t.done ? csvStamp(t.doneAt) : '',
+    t.focusSec ? Math.round(t.focusSec / 60) : 0
+  ]);
+  return '\ufeff' + [head, ...rows].map(r => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+function exportCsv(filter, slug, label) {
+  const list = state.tasks.filter(filter).sort((a, b) =>
+    (a.done - b.done) || (a.done ? (b.doneAt || 0) - (a.doneAt || 0) : (a.cat < b.cat ? -1 : a.cat > b.cat ? 1 : byPriority(a, b))));
+  if (!list.length) { toast(`No ${label} to export yet.`); return; }
+  download(`daylight-${slug}-${dk()}.csv`, tasksCsv(list), 'text/csv;charset=utf-8');
+  toast(`Exported ${list.length} ${label} as CSV.`);
+}
+function confirmBox({ title, body, ok = 'OK', danger = false, extra = null }) {
+  const dlg = $('#confirmDlg'), okBtn = $('#confirmOk'), ex = $('#confirmExtra');
+  $('#confirmTitle').textContent = title;
+  $('#confirmBody').textContent = body;
+  okBtn.textContent = ok;
+  okBtn.className = 'btn ' + (danger ? 'danger' : 'primary');
+  ex.hidden = !extra; ex.textContent = extra ? extra.label : '';
+  ex.onclick = extra ? () => extra.fn() : null;
+  dlg.returnValue = '';
+  dlg.showModal();
+  $('#confirmCancel').focus();
+  return new Promise(res => dlg.addEventListener('close', () => res(dlg.returnValue === 'ok'), { once: true }));
+}
+
+$('#exportBtn').addEventListener('click', () => {
+  download(`daylight-backup-${dk()}.json`, JSON.stringify(state, null, 2), 'application/json');
   toast('Backup exported.');
 });
+$('#csvDoneBtn').addEventListener('click', () => exportCsv(t => t.done, 'done', 'done tasks'));
+$('#csvAllBtn').addEventListener('click', () => exportCsv(() => true, 'tasks', 'tasks'));
 $('#importBtn').addEventListener('click', () => $('#importFile').click());
 $('#importFile').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;
@@ -1440,27 +1523,33 @@ $('#importFile').addEventListener('change', e => {
     try {
       const data = JSON.parse(r.result);
       if (!data || !Array.isArray(data.tasks)) throw new Error('bad file');
-      if (!confirm('Replace everything in Daylight with this backup?')) return;
-      Object.keys(state).forEach(k => delete state[k]);
-      Object.assign(state, clone(DEFAULTS), data);
-      state.settings = Object.assign({}, DEFAULTS.settings, data.settings || {});
-      state.timer = Object.assign({}, DEFAULTS.timer, data.timer || {}, { running: false, endAt: null });
-      state.timer.remaining = timerTotal();
-      state.setupDone = true;
-      save(); applyTheme(); syncSegs();
-      $('#settingsDlg').close();
-      renderAll(true);
-      toast('Backup imported.');
+      confirmBox({ title: 'Replace everything?', body: 'Everything in Daylight will be replaced with this backup, including tasks, history and settings.', ok: 'Replace', danger: true })
+        .then(yes => { if (yes) applyBackup(data); });
     } catch (err) {
       toast('That file isn’t a Daylight backup. Choose a .json file exported from Settings.');
     } finally { e.target.value = ''; }
   };
   r.readAsText(f);
 });
+function applyBackup(data) {
+  Object.keys(state).forEach(k => delete state[k]);
+  Object.assign(state, clone(DEFAULTS), data);
+  state.settings = Object.assign({}, DEFAULTS.settings, data.settings || {});
+  state.timer = Object.assign({}, DEFAULTS.timer, data.timer || {}, { running: false, endAt: null });
+  state.timer.remaining = timerTotal();
+  state.setupDone = true;
+  save(); applyTheme(); syncSegs();
+  $('#settingsDlg').close();
+  renderAll(true);
+  toast('Backup imported.');
+}
 $('#resetBtn').addEventListener('click', () => {
-  if (!confirm('Delete all tasks, history and settings from this browser? This can’t be undone.')) return;
-  try { localStorage.removeItem(KEY); } catch (err) { /* ignore */ }
-  location.reload();
+  confirmBox({ title: 'Delete all data?', body: 'All tasks, history and settings will be removed from this browser. This can’t be undone.', ok: 'Delete everything', danger: true })
+    .then(yes => {
+      if (!yes) return;
+      try { localStorage.removeItem(KEY); } catch (err) { /* ignore */ }
+      location.reload();
+    });
 });
 
 const dumpLines = () => $('#dumpText').value.split('\n').map(l => l.trim()).filter(Boolean);
@@ -1541,13 +1630,25 @@ document.addEventListener('click', e => {
     return;
   }
   if (e.target.closest('[data-clear-focus]')) { creditFocus(); state.focusTaskId = null; save(); renderAll(); return; }
+  const csvBtn = e.target.closest('[data-csv]');
+  if (csvBtn) { const cat = csvBtn.dataset.csv; exportCsv(t => t.done && t.cat === cat, `${cat}-done`, `done ${catName(cat)} tasks`); return; }
   const clr = e.target.closest('[data-clear]');
   if (clr) {
     const cat = clr.dataset.clear;
-    state.tasks = state.tasks.filter(t => !(t.done && t.cat === cat));
-    if (state.focusTaskId && !find(state.focusTaskId)) state.focusTaskId = null;
-    save(); renderAll();
-    toast('Cleared. Your streak and history stay in Momentum.');
+    const n = state.tasks.filter(t => t.done && t.cat === cat).length;
+    if (!n) return;
+    confirmBox({
+      title: `Clear ${n} done ${catName(cat)} task${n === 1 ? '' : 's'}?`,
+      body: 'They’ll be removed from this list for good. Your streak and history stay in Momentum.',
+      ok: 'Clear tasks', danger: true,
+      extra: { label: 'Export as CSV first', fn: () => exportCsv(t => t.done && t.cat === cat, `${cat}-done`, `done ${catName(cat)} tasks`) }
+    }).then(yes => {
+      if (!yes) return;
+      state.tasks = state.tasks.filter(t => !(t.done && t.cat === cat));
+      if (state.focusTaskId && !find(state.focusTaskId)) state.focusTaskId = null;
+      save(); renderAll();
+      toast('Cleared. Your streak and history stay in Momentum.');
+    });
     return;
   }
   const title = e.target.closest('.task-title');
