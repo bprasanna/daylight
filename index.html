@@ -136,6 +136,8 @@ button{ cursor:pointer; }
 .panel-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
 h2{ font-family:var(--serif); font-weight:400; font-size:1.32rem; margin:0; line-height:1.2; }
 .count{ color:var(--muted); font-size:.875rem; }
+.head-right{ display:flex; align-items:baseline; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+.three .head-right .link-btn{ padding:2px 4px; }
 
 /* Today's three */
 .three{ background:var(--sun-soft); border-color:transparent; overflow:hidden; }
@@ -373,7 +375,10 @@ textarea{ min-height:220px; resize:vertical; line-height:1.55; }
       <section class="panel three" id="threePanel" aria-labelledby="threeTitle">
         <div class="panel-head">
           <h2 id="threeTitle">Today’s three</h2>
-          <span class="count" id="threeCount"></span>
+          <div class="head-right">
+            <span class="count" id="threeCount"></span>
+            <button type="button" class="link-btn" id="clearThree" hidden title="Move finished tasks to the Done list and free their slots">Move done out</button>
+          </div>
         </div>
         <ul class="three-list" id="threeList"></ul>
       </section>
@@ -669,7 +674,7 @@ function parseQuick(raw, cat, pri) {
 }
 function normalize() {
   const today = dk();
-  state.tasks.forEach(t => { if (t.top && t.done && t.doneAt && dk(new Date(t.doneAt)) !== today) t.top = false; });
+  state.tasks.forEach(t => { if (t.top && t.done && t.doneAt && dk(new Date(t.doneAt)) !== today) { t.top = false; t.wasTop = true; } });
 }
 function pruneLog() {
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
@@ -791,6 +796,15 @@ function threeTasks() {
     .sort((a, b) => (a.pinnedAt || 0) - (b.pinnedAt || 0))
     .slice(0, 3);
 }
+// Today's-three tasks finished today, whether still in a slot or moved out to Done.
+function topDoneToday() {
+  const today = dk();
+  return state.tasks.filter(t => t.done && (t.top || t.wasTop) && t.doneAt && dk(new Date(t.doneAt)) === today).length;
+}
+function threeComplete() {
+  const three = threeTasks();
+  return topDoneToday() >= 3 && three.every(t => t.done);
+}
 function insight() {
   const today = dk(), info = dayInfo();
   const open = state.tasks.filter(t => !t.done && t.pri !== 'later');
@@ -799,7 +813,7 @@ function insight() {
   const three = threeTasks();
   const workOpen = open.filter(t => t.cat === 'work').length;
   if (state.tasks.length === 0) return 'Start with a brain dump: get every task out of your head and onto this page. Sorting comes after.';
-  if (three.length === 3 && three.every(t => t.done)) return 'Today’s three are done. Anything else today is a bonus.';
+  if (threeComplete()) return 'Today’s three are done. Anything else today is a bonus.';
   if (info.flex) {
     const mode = currentMode(), cur = curSession(), budget = +state.settings.workBudget || 0, tot = totals();
     if (mode === 'work' && info.m >= info.de) return `It’s past ${fmtClock(info.de)} and you’re still working. Note where you stopped and call it a day.`;
@@ -955,7 +969,9 @@ function taskRow(t, opts = {}) {
   const pri = t.pri === 'must' && !t.done ? '<span class="badge must">Must</span>' : '';
   const focused = t.focusSec >= 1 ? `<span class="badge focused" title="Time spent in focus blocks on this task">Focused ${fmtSecs(t.focusSec)}</span>` : '';
   const cat = opts.three ? `<span class="badge cat">${t.cat === 'work' ? 'Work' : 'Personal'}</span>` : '';
-  const pin = !opts.three && t.top && !t.done ? '<span class="badge pinned">★ Today’s three</span>' : '';
+  const pin = opts.three ? ''
+    : (t.top && !t.done) ? '<span class="badge pinned">★ Today’s three</span>'
+    : (t.done && (t.top || t.wasTop)) ? '<span class="badge pinned" title="This was one of the day’s three">★ Top three</span>' : '';
   let actions = '';
   if (!t.done) {
     actions += `<button type="button" class="act pin${t.top ? ' on' : ''}" data-act="pin" aria-pressed="${t.top}" aria-label="${t.top ? 'Unpin from' : 'Pin to'} today’s three" title="${t.top ? 'Unpin from' : 'Pin to'} today’s three">${ICON.star}</button>`;
@@ -989,6 +1005,7 @@ function renderThree() {
   const three = threeTasks();
   const done = three.filter(t => t.done).length;
   $('#threeCount').textContent = three.length ? `${done} of ${three.length} done` : '';
+  $('#clearThree').hidden = !done;
   let html = three.map(t => taskRow(t, { three: true })).join('');
   const hasTasks = state.tasks.some(t => !t.done);
   for (let i = three.length; i < 3; i++) {
@@ -1138,13 +1155,23 @@ function toggleDone(id, btn) {
     }, reduceMotion ? 0 : 420);
   } else {
     if (t.doneAt && dk(new Date(t.doneAt)) === dk()) { L.done = Math.max(0, L.done - 1); L[t.cat] = Math.max(0, (L[t.cat] || 0) - 1); }
+    const doneToday = t.doneAt && dk(new Date(t.doneAt)) === dk();
     t.done = false; t.doneAt = null;
+    let note = '';
+    if (t.wasTop) {
+      t.wasTop = false;
+      if (doneToday) {
+        if (threeTasks().length < 3) { t.top = true; note = 'Back in today’s three.'; }
+        else note = 'Back on your list. Today’s three is full, so star it again when a slot opens.';
+      }
+    }
     save(); renderAll();
+    if (note) toast(note);
   }
 }
 function maybeCelebrate() {
-  const today = dk(), three = threeTasks();
-  if (three.length === 3 && three.every(t => t.done) && state.celebrated !== today) {
+  const today = dk();
+  if (threeComplete() && state.celebrated !== today) {
     state.celebrated = today; save();
     burst();
     toast('All three done. Anything else today is a bonus.');
@@ -1499,6 +1526,20 @@ document.addEventListener('click', e => {
   if (act) { handleAct(act.dataset.act, act.closest('[data-id]').dataset.id); return; }
   if (e.target.closest('[data-peek]')) { state.peekWork = dk(); save(); renderColumns(); return; }
   if (e.target.closest('[data-unpeek]')) { state.peekWork = null; save(); renderColumns(); return; }
+  if (e.target.closest('#clearThree')) {
+    const moved = threeTasks().filter(t => t.done);
+    if (!moved.length) return;
+    moved.forEach(t => { t.top = false; t.wasTop = true; });
+    save(); renderAll();
+    const n = moved.length;
+    toast(`Moved ${n === 1 ? 'it' : n === 2 ? 'both' : 'all three'} to Done. ${n === 1 ? 'A slot is' : n + ' slots are'} open if you want more today.`, {
+      label: 'Undo', fn: () => {
+        moved.forEach(t => { if (t.done && t.wasTop && threeTasks().length < 3) { t.top = true; t.wasTop = false; } });
+        save(); renderAll();
+      }
+    });
+    return;
+  }
   if (e.target.closest('[data-clear-focus]')) { creditFocus(); state.focusTaskId = null; save(); renderAll(); return; }
   const clr = e.target.closest('[data-clear]');
   if (clr) {
